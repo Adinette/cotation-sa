@@ -59,6 +59,7 @@ const updateSelectedOption = (value: string | null) => {
             </slot>
             <VRadio
               :id="`custom-radio-with-img-${item.value}`"
+              :name="`custom-radio-with-img-${item.value}`"
               :value="item.value"
             />
           </VLabel>

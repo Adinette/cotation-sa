@@ -60,6 +60,7 @@ const hideTitleAndIcon = configStore.isVerticalNavMini(isHovered)
   <Component
     :is="props.tag"
     ref="refNav"
+    data-allow-mismatch
     class="layout-vertical-nav"
     :class="[
       {

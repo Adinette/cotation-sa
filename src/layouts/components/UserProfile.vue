@@ -1,29 +1,6 @@
 <script setup lang="ts">
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
-
-const router = useRouter()
-const ability = useAbility()
-
-// TODO: Get type from backend
-const userData = useCookie<any>('userData')
-
-const logout = async () => {
-  // Remove "accessToken" from cookie
-  useCookie('accessToken').value = null
-
-  // Remove "userData" from cookie
-  userData.value = null
-
-  // Redirect to login page
-  await router.push('/login')
-
-  // ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
-  // Remove "userAbilities" from cookie
-  useCookie('userAbilityRules').value = null
-
-  // Reset ability to initial ability
-  ability.update([])
-}
+import avatar1 from '@images/avatars/avatar-1.png'
 
 const userProfileList = [
   { type: 'divider' },
@@ -31,19 +8,19 @@ const userProfileList = [
     type: 'navItem',
     icon: 'ri-user-line',
     title: 'Profile',
-    to: { name: 'apps-user-view-id', params: { id: 21 } },
+    href: '#',
   },
   {
     type: 'navItem',
     icon: 'ri-settings-4-line',
     title: 'Settings',
-    to: { name: 'pages-account-settings-tab', params: { tab: 'account' } },
+    href: '#',
   },
   {
     type: 'navItem',
     icon: 'ri-file-text-line',
     title: 'Billing Plan',
-    to: { name: 'pages-account-settings-tab', params: { tab: 'billing-plans' } },
+    href: '#',
     chipsProps: { color: 'error', text: '4', size: 'small' },
   },
   { type: 'divider' },
@@ -51,20 +28,19 @@ const userProfileList = [
     type: 'navItem',
     icon: 'ri-money-dollar-circle-line',
     title: 'Pricing',
-    to: { name: 'pages-pricing' },
+    href: '#',
   },
   {
     type: 'navItem',
     icon: 'ri-question-line',
     title: 'FAQ',
-    to: { name: 'pages-faq' },
+    href: '#',
   },
 ]
 </script>
 
 <template>
   <VBadge
-    v-if="userData"
     dot
     bordered
     location="bottom right"
@@ -76,17 +52,8 @@ const userProfileList = [
     <VAvatar
       class="cursor-pointer"
       size="38"
-      :color="!(userData && userData.avatar) ? 'primary' : undefined"
-      :variant="!(userData && userData.avatar) ? 'tonal' : undefined"
     >
-      <VImg
-        v-if="userData && userData.avatar"
-        :src="userData.avatar"
-      />
-      <VIcon
-        v-else
-        icon="ri-user-line"
-      />
+      <VImg :src="avatar1" />
 
       <!-- SECTION Menu -->
       <VMenu
@@ -98,26 +65,16 @@ const userProfileList = [
         <VList>
           <VListItem class="px-4">
             <div class="d-flex gap-x-2 align-center">
-              <VAvatar
-                :color="!(userData && userData.avatar) ? 'primary' : undefined"
-                :variant="!(userData && userData.avatar) ? 'tonal' : undefined"
-              >
-                <VImg
-                  v-if="userData && userData.avatar"
-                  :src="userData.avatar"
-                />
-                <VIcon
-                  v-else
-                  icon="ri-user-line"
-                />
+              <VAvatar>
+                <VImg :src="avatar1" />
               </VAvatar>
 
               <div>
                 <div class="text-body-2 font-weight-medium text-high-emphasis">
-                  {{ userData.fullName || userData.username }}
+                  John Doe
                 </div>
                 <div class="text-capitalize text-caption text-disabled">
-                  {{ userData.role }}
+                  Admin
                 </div>
               </div>
             </div>
@@ -130,7 +87,6 @@ const userProfileList = [
             >
               <VListItem
                 v-if="item.type === 'navItem'"
-                :to="item.to"
                 class="px-4"
               >
                 <template #prepend>
@@ -165,7 +121,7 @@ const userProfileList = [
                 color="error"
                 size="small"
                 append-icon="ri-logout-box-r-line"
-                @click="logout"
+                :to="{ name: 'login' }"
               >
                 Logout
               </VBtn>

@@ -22,7 +22,10 @@ watch([isFallbackStateActive, refLoadingIndicator], () => {
 <template>
   <AppLoadingIndicator ref="refLoadingIndicator" />
 
-  <div class="layout-wrapper layout-blank">
+  <div
+    class="layout-wrapper layout-blank"
+    data-allow-mismatch
+  >
     <RouterView #="{Component}">
       <Suspense
         :timeout="0"

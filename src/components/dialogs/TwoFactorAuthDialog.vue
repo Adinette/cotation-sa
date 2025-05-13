@@ -115,11 +115,11 @@ const openSelectedMethodDialog = () => {
   </VDialog>
 
   <AddAuthenticatorAppDialog
-    v-model:isDialogVisible="isAuthAppDialogVisible"
+    v-model:is-dialog-visible="isAuthAppDialogVisible"
     :auth-code="props.authAppCode"
   />
   <EnableOneTimePasswordDialog
-    v-model:isDialogVisible="isSmsDialogVisible"
+    v-model:is-dialog-visible="isSmsDialogVisible"
     :mobile-number="props.smsCode"
   />
 </template>

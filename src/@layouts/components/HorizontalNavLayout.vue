@@ -16,6 +16,7 @@ const configStore = useLayoutConfigStore()
 <template>
   <div
     class="layout-wrapper"
+    data-allow-mismatch
     :class="configStore._layoutClasses"
   >
     <div

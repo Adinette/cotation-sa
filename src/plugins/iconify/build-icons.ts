@@ -12,10 +12,6 @@
  */
 import { promises as fs } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from "node:url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 // Installation: npm install --save-dev @iconify/tools @iconify/utils @iconify/json @iconify/iconify
 import { cleanupSVG, importDirectory, isEmptyColor, parseColors, runSVGO } from '@iconify/tools'
@@ -61,56 +57,67 @@ interface BundleScriptConfig {
 }
 
 const sources: BundleScriptConfig = {
-	svg: [
-		// {
-		//   dir: 'src/assets/images/iconify-svg',
-		//   monotone: true,
-		//   prefix: 'custom',
-		// },
-		// {
-		//   dir: 'emojis',
-		//   monotone: false,
-		//   prefix: 'emoji',
-		// },
-	],
 
-	icons: [
-		// 'mdi:home',
-		// 'mdi:account',
-		// 'mdi:login',
-		// 'mdi:logout',
-		// 'octicon:book-24',
-		// 'octicon:code-square-24',
-	],
+  svg: [
+    // {
+    //   dir: 'src/assets/images/iconify-svg',
+    //   monotone: true,
+    //   prefix: 'custom',
+    // },
 
-	json: [
-		// Custom JSON file
-		// 'json/gg.json',
+    // {
+    //   dir: 'emojis',
+    //   monotone: false,
+    //   prefix: 'emoji',
+    // },
+  ],
 
-		// Iconify JSON file (@iconify/json is a package name, /json/ is directory where files are, then filename)
-		new URL("@iconify-json/ri/icons.json", import.meta.url).pathname,
-		{
-			filename: new URL("@iconify-json/mdi/icons.json", import.meta.url).pathname,
-			icons: ["language-typescript", "language-javascript"],
-		},
-		{
-			filename: new URL("@iconify-json/bxl/icons.json", import.meta.url).pathname,
-			icons: ["facebook", "twitter", "github", "google", "linkedin"],
-		},
+  icons: [
+    // 'mdi:home',
+    // 'mdi:account',
+    // 'mdi:login',
+    // 'mdi:logout',
+    // 'octicon:book-24',
+    // 'octicon:code-square-24',
+  ],
 
-		// Custom file with only few icons
-		// {
-		//   filename: require.resolve('@iconify-json/line-md/icons.json'),
-		//   icons: [
-		//     'home-twotone-alt',
-		//     'github',
-		//     'document-list',
-		//     'document-code',
-		//     'image-twotone',
-		//   ],
-		// },
-	],
-};
+  json: [
+    // Custom JSON file
+    // 'json/gg.json',
+
+    // Iconify JSON file (@iconify/json is a package name, /json/ is directory where files are, then filename)
+    require.resolve('@iconify-json/ri/icons.json'),
+    {
+      filename: require.resolve('@iconify-json/mdi/icons.json'),
+      icons: [
+        'language-typescript',
+        'language-javascript',
+      ],
+    },
+    {
+      filename: require.resolve('@iconify-json/bxl/icons.json'),
+      icons: [
+        'facebook',
+        'twitter',
+        'github',
+        'google',
+        'linkedin',
+      ],
+    },
+
+    // Custom file with only few icons
+    // {
+    //   filename: require.resolve('@iconify-json/line-md/icons.json'),
+    //   icons: [
+    //     'home-twotone-alt',
+    //     'github',
+    //     'document-list',
+    //     'document-code',
+    //     'image-twotone',
+    //   ],
+    // },
+  ],
+}
 
 // File to save bundle to
 const target = join(__dirname, 'icons.css')
@@ -143,7 +150,7 @@ const target = join(__dirname, 'icons.css')
     const organizedList = organizeIconsList(sources.icons)
 
     for (const prefix in organizedList) {
-      const filename = new URL(`@iconify/json/json/${prefix}.json`, import.meta.url).pathname;
+      const filename = require.resolve(`@iconify/json/json/${prefix}.json`)
 
       sourcesJSON.push({
         filename,

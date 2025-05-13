@@ -299,6 +299,7 @@ const resetCustomizer = async () => {
 
     <VNavigationDrawer
       v-model="isNavDrawerOpen"
+      data-allow-mismatch
       temporary
       touchless
       border="none"
