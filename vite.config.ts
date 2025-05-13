@@ -1,5 +1,4 @@
 import { fileURLToPath } from 'node:url'
-import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import AutoImport from 'unplugin-auto-import/vite'
@@ -24,10 +23,7 @@ export default defineConfig({
           .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
           .toLowerCase()
       },
-      beforeWriteFiles: root => {
-        root.insert('/apps/email/:filter', '/src/pages/apps/email/index.vue')
-        root.insert('/apps/email/:label', '/src/pages/apps/email/index.vue')
-      },
+
     }),
     vue({
       template: {
@@ -80,14 +76,6 @@ export default defineConfig({
       ignore: ['useCookies', 'useStorage'],
     }),
 
-    // Docs: https://github.com/intlify/bundle-tools/tree/main/packages/unplugin-vue-i18n#intlifyunplugin-vue-i18n
-    VueI18nPlugin({
-      runtimeOnly: true,
-      compositionOnly: true,
-      include: [
-        fileURLToPath(new URL('./src/plugins/i18n/locales/**', import.meta.url)),
-      ],
-    }),
     svgLoader(),
   ],
   define: { 'process.env': {} },

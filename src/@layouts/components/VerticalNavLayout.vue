@@ -58,6 +58,7 @@ const verticalNavAttrs = computed(() => {
 <template>
   <div
     class="layout-wrapper"
+    data-allow-mismatch
     :class="configStore._layoutClasses"
   >
     <component

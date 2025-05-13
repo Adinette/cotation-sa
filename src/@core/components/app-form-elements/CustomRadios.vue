@@ -37,7 +37,10 @@ const updateSelectedOption = (value: string | null) => {
           :class="props.selectedRadio === item.value ? 'active' : ''"
         >
           <div>
-            <VRadio :value="item.value" />
+            <VRadio
+              :name="item.value"
+              :value="item.value"
+            />
           </div>
           <slot :item="item">
             <div class="flex-grow-1">

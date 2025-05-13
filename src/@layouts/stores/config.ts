@@ -49,7 +49,23 @@ export const useLayoutConfigStore = defineStore('layoutConfig', () => {
   const footerType = ref(layoutConfig.footer.type)
 
   // 👉 Misc
-  const isLessThanOverlayNavBreakpoint = computed(() => useMediaQuery(`(max-width: ${layoutConfig.app.overlayNavFromBreakpoint}px)`).value)
+  const breakpointRef = ref(false)
+
+  // Sync with `useMediaQuery`
+  watchEffect(() => {
+    breakpointRef.value = useMediaQuery(
+      `(max-width: ${layoutConfig.app.overlayNavFromBreakpoint}px)`,
+    ).value
+  })
+
+  const isLessThanOverlayNavBreakpoint = computed({
+    get() {
+      return breakpointRef.value // Getter for reactive state
+    },
+    set(value) {
+      breakpointRef.value = value // Allow manual mutation
+    },
+  })
 
   // 👉 Layout Classes
   const _layoutClasses = computed(() => {
