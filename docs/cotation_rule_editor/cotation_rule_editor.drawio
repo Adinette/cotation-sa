@@ -213,7 +213,7 @@
                 <mxCell id="129" value="" style="rounded=0;whiteSpace=wrap;html=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="1" vertex="1">
                     <mxGeometry x="220" y="740" width="730" height="680" as="geometry"/>
                 </mxCell>
-                <mxCell id="200" style="edgeStyle=none;html=1;entryX=0.436;entryY=0.002;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="96" target="108">
+                <mxCell id="200" style="edgeStyle=none;html=1;entryX=0.436;entryY=0.002;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="96" target="108" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="96" value="&lt;span style=&quot;color: rgb(0, 0, 0); font-weight: 700; text-wrap-mode: nowrap;&quot;&gt;Définition de variable&lt;/span&gt;" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
@@ -487,7 +487,7 @@
                 <mxCell id="198" value="" style="shape=offPageConnector;whiteSpace=wrap;html=1;size=1;" parent="1" vertex="1">
                     <mxGeometry x="1991" y="1094" width="20" height="10" as="geometry"/>
                 </mxCell>
-                <mxCell id="199" style="edgeStyle=none;html=1;entryX=0.586;entryY=0.002;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="101" target="108">
+                <mxCell id="199" style="edgeStyle=none;html=1;entryX=0.586;entryY=0.002;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="101" target="108" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
             </root>
