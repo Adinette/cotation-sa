@@ -1,12 +1,12 @@
 // 📁 RuleEditor.vue
 <script lang="ts" setup>
-import { ref, defineAsyncComponent, h } from 'vue'
 import {
-  VueFlow,
-  useVueFlow,
+  Edge,
   Node,
-  Edge
+  VueFlow,
+  useVueFlow
 } from '@vue-flow/core'
+import { ref } from 'vue'
 
 import '@vue-flow/core/dist/style.css'
 
@@ -90,7 +90,7 @@ function simulateExecution() {
           <div class="mb-2">{{ selectedNode.type }}</div>
           <label class="block text-sm mb-1">Label</label>
           <input v-model="selectedNode.data.label" class="w-full border p-1 mb-2" />
-          <button @click="saveNodeEdits" class="mt-2 bg-blue-600 text-white px-4 py-1 rounded">
+          <button @click="saveNodeEdits" class="mt-2 bg-blue-600 text-black px-4 py-1 rounded">
             Enregistrer
           </button>
         </div>
@@ -106,7 +106,7 @@ function simulateExecution() {
         <input type="number" v-model="testValues.taux" class="w-full border p-1 mb-2" />
         <label class="block text-xs">Frais fixes</label>
         <input type="number" v-model="testValues.frais_fixes" class="w-full border p-1 mb-2" />
-        <button @click="simulateExecution" class="mt-4 bg-purple-600 text-white px-4 py-1 rounded">
+        <button @click="simulateExecution" class="mt-4 bg-purple-600 text-black px-4 py-1 rounded">
           ▶️ Simuler règle
         </button>
       </div>
@@ -115,7 +115,7 @@ function simulateExecution() {
     <!-- 🔘 Actions -->
     <button
       @click="exportJSON"
-      class="absolute bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded shadow-lg"
+      class="absolute bottom-4 right-4 bg-green-600 text-black px-4 py-2 rounded shadow-lg"
     >
       Exporter JSON
     </button>

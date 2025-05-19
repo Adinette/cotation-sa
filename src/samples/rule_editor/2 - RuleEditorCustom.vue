@@ -1,12 +1,12 @@
 // 📁 RuleEditor.vue
 <script lang="ts" setup>
-import { ref, defineAsyncComponent } from 'vue'
 import {
-  VueFlow,
-  useVueFlow,
+  Edge,
   Node,
-  Edge
+  VueFlow,
+  useVueFlow
 } from '@vue-flow/core'
+import { ref } from 'vue'
 
 import '@vue-flow/core/dist/style.css'
 

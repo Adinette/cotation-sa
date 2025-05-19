@@ -88,7 +88,7 @@ function exportJSON() {
     <!-- 🔘 Actions -->
     <button
       @click="exportJSON"
-      class="absolute bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded shadow-lg"
+      class="absolute bottom-4 right-4 bg-green-600 text-black px-4 py-2 rounded shadow-lg"
     >
       Exporter JSON
     </button>
