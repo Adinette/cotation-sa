@@ -1,57 +1,31 @@
+<!-- ConditionForm.vue -->
 <script lang="ts" setup>
-import { ConditionEntry } from '@/utils/type';
-import { ref, watch } from 'vue';
+import { comparisonOperations, ConditionEntry, FieldConfig } from '@/utils/type';
+import { ref } from 'vue';
 
-const items = ref(['frais_fixe', 'capital', 'taux', 'age'])
-
-const emit = defineEmits<{
-    (e: 'update:conditions', value: ConditionEntry[]): void
+const props = defineProps<{
+    index: number
+    defaultConditions?: ConditionEntry
+    closeDialog: (index: number) => void
+    onSubmit?: (data: any) => void
 }>()
 
-const currentConditions = ref<ConditionEntry>({
-    left: '',
-    right: '',
-    operation: '',
-})
+const emit = defineEmits(['update:conditions'])
+const conditions = ref<any[]>([])
 
-const addedConditions = ref<ConditionEntry[]>([])
-
-watch(addedConditions, (newVal) => {
-    emit('update:conditions', newVal)
-}, { deep: true })
-
-const submit = () => {
-    if (!currentConditions.value.left || !currentConditions.value.right || !currentConditions.value.operation) {
-        alert('Veuillez remplir tous les champs.')
-        return
-    }
-    console.log("Condition ajoutée :", currentConditions.value)
-    addedConditions.value.push({ ...currentConditions.value })
-    currentConditions.value = { left: '', right: '', operation: '' }
-
+const handleSubmit = (data: any) => {
+    conditions.value.push(data)
+    emit('update:conditions', conditions.value)
+    props?.onSubmit?.(data)
 }
 
+const fields: FieldConfig[] = [
+    { name: 'operation', label: 'Type d\'opération', type: 'select', options: comparisonOperations.value },
+    { name: 'left', label: 'Variable de gauche', type: 'select', dynamicOptions: true, multiple: false, options: baseItems, },
+    { name: 'right', label: 'Variable de droite', type: 'select', dynamicOptions: true, multiple: false, options: baseItems, },
+]
 </script>
 
 <template>
-    <div class="p-4">
-        <div class="mb-4">
-            <Select v-model="currentConditions.left" :items="items" label="Variable de gauche" :multiple="false"
-                class="mb-2" />
-            <Select v-model="currentConditions.right" :items="items" label="Variable de droite" :multiple="false"
-                class="mb-2" />
-
-            <TextField label="Type d'opération" v-model="currentConditions.operation" class="mb-2" />
-
-            <v-btn color="success" @click="submit" variant="tonal" class="success-button">
-                Ajouter
-            </v-btn>
-        </div>
-    </div>
+    <GenericForm :fields="fields" :index="props.index" :closeDialog="props.closeDialog" :onSubmit="handleSubmit" />
 </template>
-
-<style scoped>
-.success-button:disabled {
-    cursor: pointer;
-}
-</style>

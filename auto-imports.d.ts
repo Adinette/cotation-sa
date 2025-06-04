@@ -12,13 +12,17 @@ declare global {
   const EffectScope: typeof import('vue')['EffectScope']
   const LogicButton: typeof import('./src/utils/type')['LogicButton']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
+  const addNestedNode: typeof import('./src/utils/generateNodeFunction')['addNestedNode']
   const addNode: typeof import('./src/composables/useGraph')['addNode']
   const alphaDashValidator: typeof import('./src/@core/utils/validators')['alphaDashValidator']
   const alphaValidator: typeof import('./src/@core/utils/validators')['alphaValidator']
   const asyncComputed: typeof import('@vueuse/core')['asyncComputed']
   const autoResetRef: typeof import('@vueuse/core')['autoResetRef']
   const avatarText: typeof import('./src/@core/utils/formatters')['avatarText']
+  const baseItems: typeof import('./src/utils/type')['baseItems']
   const betweenValidator: typeof import('./src/@core/utils/validators')['betweenValidator']
+  const childNodeStyle: typeof import('./src/utils/style')['childNodeStyle']
+  const comparisonOperations: typeof import('./src/utils/type')['comparisonOperations']
   const computed: typeof import('vue')['computed']
   const computedAsync: typeof import('@vueuse/core')['computedAsync']
   const computedEager: typeof import('@vueuse/core')['computedEager']
@@ -28,21 +32,28 @@ declare global {
   const controlledComputed: typeof import('@vueuse/core')['controlledComputed']
   const controlledRef: typeof import('@vueuse/core')['controlledRef']
   const createApp: typeof import('vue')['createApp']
+  const createChildNode: typeof import('./src/utils/generateNodeFunction')['createChildNode']
+  const createChildNodes: typeof import('./src/utils/generateNodeFunction')['createChildNodes']
+  const createConditionContainer: typeof import('./src/utils/generateNodeFunction')['createConditionContainer']
   const createEventHook: typeof import('@vueuse/core')['createEventHook']
   const createGenericProjection: typeof import('@vueuse/math')['createGenericProjection']
   const createGlobalState: typeof import('@vueuse/core')['createGlobalState']
   const createInjectionState: typeof import('@vueuse/core')['createInjectionState']
+  const createNode: typeof import('./src/utils/nodeFactory')['createNode']
   const createPinia: typeof import('pinia')['createPinia']
   const createProjection: typeof import('@vueuse/math')['createProjection']
   const createReactiveFn: typeof import('@vueuse/core')['createReactiveFn']
   const createReusableTemplate: typeof import('@vueuse/core')['createReusableTemplate']
   const createSharedComposable: typeof import('@vueuse/core')['createSharedComposable']
   const createTemplatePromise: typeof import('@vueuse/core')['createTemplatePromise']
+  const createThenDetailNode: typeof import('./src/utils/generateNodeFunction')['createThenDetailNode']
   const createUnrefFn: typeof import('@vueuse/core')['createUnrefFn']
   const createUrl: typeof import('./src/@core/composable/createUrl')['createUrl']
+  const currentEditorType: typeof import('./src/utils/type')['currentEditorType']
   const customRef: typeof import('vue')['customRef']
   const debouncedRef: typeof import('@vueuse/core')['debouncedRef']
   const debouncedWatch: typeof import('@vueuse/core')['debouncedWatch']
+  const defaultNodeStyle: typeof import('./src/utils/style')['defaultNodeStyle']
   const defineAsyncComponent: typeof import('vue')['defineAsyncComponent']
   const defineComponent: typeof import('vue')['defineComponent']
   const defineLoader: typeof import('vue-router/auto')['defineLoader']
@@ -51,13 +62,36 @@ declare global {
   const eagerComputed: typeof import('@vueuse/core')['eagerComputed']
   const effectScope: typeof import('vue')['effectScope']
   const emailValidator: typeof import('./src/@core/utils/validators')['emailValidator']
+  const enterVariables: typeof import('./src/utils/type')['enterVariables']
   const extendRef: typeof import('@vueuse/core')['extendRef']
+  const extractVariables: typeof import('./src/utils/variables')['extractVariables']
+  const formConditions: typeof import('./src/utils/handleFunctions')['formConditions']
+  const formLoop: typeof import('./src/utils/handleFunctions')['formLoop']
+  const formReturn: typeof import('./src/utils/handleFunctions')['formReturn']
+  const formVariables: typeof import('./src/utils/handleFunctions')['formVariables']
   const formatDate: typeof import('./src/@core/utils/formatters')['formatDate']
   const formatDateToMonthShort: typeof import('./src/@core/utils/formatters')['formatDateToMonthShort']
+  const functions: typeof import('./src/utils/functions')['default']
+  const generateConditionNode: typeof import('./src/utils/generateNodes')['generateConditionNode']
+  const generateLoopNode: typeof import('./src/utils/generateNodes')['generateLoopNode']
+  const generateLoopNodes: typeof import('./src/utils/generateNodes')['generateLoopNodes']
+  const generateReturnNode: typeof import('./src/utils/generateNodes')['generateReturnNode']
+  const generateReturnNodes: typeof import('./src/utils/generateNodes')['generateReturnNodes']
+  const generateVariableNode: typeof import('./src/utils/generateNodes')['generateVariableNode']
   const getActivePinia: typeof import('pinia')['getActivePinia']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
   const h: typeof import('vue')['h']
+  const handleConditionClick: typeof import('./src/utils/handleFunctions')['handleConditionClick']
+  const handleConditionSubmit: typeof import('./src/utils/handleFunctions')['handleConditionSubmit']
+  const handleConditionsUpdate: typeof import('./src/utils/handleFunctions')['handleConditionsUpdate']
+  const handleLoopSubmit: typeof import('./src/utils/handleFunctions')['handleLoopSubmit']
+  const handleLoopUpdate: typeof import('./src/utils/handleFunctions')['handleLoopUpdate']
+  const handleReturnSubmit: typeof import('./src/utils/handleFunctions')['handleReturnSubmit']
+  const handleReturnUpdate: typeof import('./src/utils/handleFunctions')['handleReturnUpdate']
+  const handleThenClick: typeof import('./src/utils/functions')['handleThenClick']
+  const handleVariableSubmit: typeof import('./src/utils/handleFunctions')['handleVariableSubmit']
+  const handleVariablesUpdate: typeof import('./src/utils/handleFunctions')['handleVariablesUpdate']
   const hexToRgb: typeof import('./src/@core/utils/colorConverter')['hexToRgb']
   const ignorableWatch: typeof import('@vueuse/core')['ignorableWatch']
   const inject: typeof import('vue')['inject']
@@ -66,6 +100,7 @@ declare global {
   const isDefined: typeof import('@vueuse/core')['isDefined']
   const isEmpty: typeof import('./src/@core/utils/helpers')['isEmpty']
   const isEmptyArray: typeof import('./src/@core/utils/helpers')['isEmptyArray']
+  const isLoopValid: typeof import('./src/utils/handleFunctions')['isLoopValid']
   const isNullOrUndefined: typeof import('./src/@core/utils/helpers')['isNullOrUndefined']
   const isObject: typeof import('./src/@core/utils/helpers')['isObject']
   const isProxy: typeof import('vue')['isProxy']
@@ -75,6 +110,7 @@ declare global {
   const isToday: typeof import('./src/@core/utils/helpers')['isToday']
   const kFormatter: typeof import('./src/@core/utils/formatters')['kFormatter']
   const lengthValidator: typeof import('./src/@core/utils/validators')['lengthValidator']
+  const loadStoredVariables: typeof import('./src/utils/variables')['loadStoredVariables']
   const logicAnd: typeof import('@vueuse/math')['logicAnd']
   const logicNot: typeof import('@vueuse/math')['logicNot']
   const logicOr: typeof import('@vueuse/math')['logicOr']
@@ -111,6 +147,7 @@ declare global {
   const passwordValidator: typeof import('./src/@core/utils/validators')['passwordValidator']
   const pausableWatch: typeof import('@vueuse/core')['pausableWatch']
   const prefixWithPlus: typeof import('./src/@core/utils/formatters')['prefixWithPlus']
+  const props: typeof import('./src/utils/variables')['props']
   const provide: typeof import('vue')['provide']
   const provideLocal: typeof import('@vueuse/core')['provideLocal']
   const reactify: typeof import('@vueuse/core')['reactify']
@@ -134,12 +171,20 @@ declare global {
   const resolveUnref: typeof import('@vueuse/core')['resolveUnref']
   const resolveVuetifyTheme: typeof import('./src/@core/utils/vuetify')['resolveVuetifyTheme']
   const rgbaToHex: typeof import('./src/@core/utils/colorConverter')['rgbaToHex']
+  const selectedConditionParentId: typeof import('./src/utils/functions')['selectedConditionParentId']
+  const selectedElseParentId: typeof import('./src/utils/functions')['selectedElseParentId']
+  const selectedParentId: typeof import('./src/utils/functions')['selectedParentId']
+  const selectedReturnParentId: typeof import('./src/utils/functions')['selectedReturnParentId']
+  const selectedThenParentId: typeof import('./src/utils/functions')['selectedThenParentId']
+  const selectedvariableParentId: typeof import('./src/utils/functions')['selectedvariableParentId']
   const setActivePinia: typeof import('pinia')['setActivePinia']
   const setMapStoreSuffix: typeof import('pinia')['setMapStoreSuffix']
   const shallowReactive: typeof import('vue')['shallowReactive']
   const shallowReadonly: typeof import('vue')['shallowReadonly']
   const shallowRef: typeof import('vue')['shallowRef']
   const storeToRefs: typeof import('pinia')['storeToRefs']
+  const storeVariable: typeof import('./src/utils/variables')['storeVariable']
+  const submittedData: typeof import('./src/utils/handleFunctions')['submittedData']
   const syncRef: typeof import('@vueuse/core')['syncRef']
   const syncRefs: typeof import('@vueuse/core')['syncRefs']
   const templateRef: typeof import('@vueuse/core')['templateRef']
@@ -159,6 +204,9 @@ declare global {
   const unref: typeof import('vue')['unref']
   const unrefElement: typeof import('@vueuse/core')['unrefElement']
   const until: typeof import('@vueuse/core')['until']
+  const updateHeight: typeof import('./src/utils/functions')['updateHeight']
+  const updateParentHeight: typeof import('./src/utils/functions')['updateParentHeight']
+  const updateThenHeight: typeof import('./src/utils/functions')['updateThenHeight']
   const urlValidator: typeof import('./src/@core/utils/validators')['urlValidator']
   const useAbility: typeof import('./src/plugins/casl/composables/useAbility')['useAbility']
   const useAbs: typeof import('@vueuse/math')['useAbs']
@@ -380,13 +428,16 @@ declare module 'vue' {
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly LogicButton: UnwrapRef<typeof import('./src/utils/type')['LogicButton']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
+    readonly addNestedNode: UnwrapRef<typeof import('./src/utils/generateNodeFunction')['addNestedNode']>
     readonly addNode: UnwrapRef<typeof import('./src/composables/useGraph')['addNode']>
     readonly alphaDashValidator: UnwrapRef<typeof import('./src/@core/utils/validators')['alphaDashValidator']>
     readonly alphaValidator: UnwrapRef<typeof import('./src/@core/utils/validators')['alphaValidator']>
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
     readonly avatarText: UnwrapRef<typeof import('./src/@core/utils/formatters')['avatarText']>
+    readonly baseItems: UnwrapRef<typeof import('./src/utils/type')['baseItems']>
     readonly betweenValidator: UnwrapRef<typeof import('./src/@core/utils/validators')['betweenValidator']>
+    readonly comparisonOperations: UnwrapRef<typeof import('./src/utils/type')['comparisonOperations']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly computedAsync: UnwrapRef<typeof import('@vueuse/core')['computedAsync']>
     readonly computedEager: UnwrapRef<typeof import('@vueuse/core')['computedEager']>
@@ -396,6 +447,9 @@ declare module 'vue' {
     readonly controlledComputed: UnwrapRef<typeof import('@vueuse/core')['controlledComputed']>
     readonly controlledRef: UnwrapRef<typeof import('@vueuse/core')['controlledRef']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
+    readonly createChildNode: UnwrapRef<typeof import('./src/utils/generateNodeFunction')['createChildNode']>
+    readonly createChildNodes: UnwrapRef<typeof import('./src/utils/generateNodeFunction')['createChildNodes']>
+    readonly createConditionContainer: UnwrapRef<typeof import('./src/utils/generateNodeFunction')['createConditionContainer']>
     readonly createEventHook: UnwrapRef<typeof import('@vueuse/core')['createEventHook']>
     readonly createGenericProjection: UnwrapRef<typeof import('@vueuse/math')['createGenericProjection']>
     readonly createGlobalState: UnwrapRef<typeof import('@vueuse/core')['createGlobalState']>
@@ -406,6 +460,7 @@ declare module 'vue' {
     readonly createReusableTemplate: UnwrapRef<typeof import('@vueuse/core')['createReusableTemplate']>
     readonly createSharedComposable: UnwrapRef<typeof import('@vueuse/core')['createSharedComposable']>
     readonly createTemplatePromise: UnwrapRef<typeof import('@vueuse/core')['createTemplatePromise']>
+    readonly createThenDetailNode: UnwrapRef<typeof import('./src/utils/generateNodeFunction')['createThenDetailNode']>
     readonly createUnrefFn: UnwrapRef<typeof import('@vueuse/core')['createUnrefFn']>
     readonly createUrl: UnwrapRef<typeof import('./src/@core/composable/createUrl')['createUrl']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
@@ -418,13 +473,32 @@ declare module 'vue' {
     readonly eagerComputed: UnwrapRef<typeof import('@vueuse/core')['eagerComputed']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
     readonly emailValidator: UnwrapRef<typeof import('./src/@core/utils/validators')['emailValidator']>
+    readonly enterVariables: UnwrapRef<typeof import('./src/utils/type')['enterVariables']>
     readonly extendRef: UnwrapRef<typeof import('@vueuse/core')['extendRef']>
+    readonly extractVariables: UnwrapRef<typeof import('./src/utils/variables')['extractVariables']>
+    readonly formConditions: UnwrapRef<typeof import('./src/utils/handleFunctions')['formConditions']>
+    readonly formLoop: UnwrapRef<typeof import('./src/utils/handleFunctions')['formLoop']>
+    readonly formReturn: UnwrapRef<typeof import('./src/utils/handleFunctions')['formReturn']>
+    readonly formVariables: UnwrapRef<typeof import('./src/utils/handleFunctions')['formVariables']>
     readonly formatDate: UnwrapRef<typeof import('./src/@core/utils/formatters')['formatDate']>
     readonly formatDateToMonthShort: UnwrapRef<typeof import('./src/@core/utils/formatters')['formatDateToMonthShort']>
+    readonly generateConditionNode: UnwrapRef<typeof import('./src/utils/generateNodes')['generateConditionNode']>
+    readonly generateLoopNodes: UnwrapRef<typeof import('./src/utils/generateNodes')['generateLoopNodes']>
+    readonly generateReturnNodes: UnwrapRef<typeof import('./src/utils/generateNodes')['generateReturnNodes']>
+    readonly generateVariableNode: UnwrapRef<typeof import('./src/utils/generateNodes')['generateVariableNode']>
     readonly getActivePinia: UnwrapRef<typeof import('pinia')['getActivePinia']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
+    readonly handleConditionClick: UnwrapRef<typeof import('./src/utils/handleFunctions')['handleConditionClick']>
+    readonly handleConditionSubmit: UnwrapRef<typeof import('./src/utils/handleFunctions')['handleConditionSubmit']>
+    readonly handleConditionsUpdate: UnwrapRef<typeof import('./src/utils/handleFunctions')['handleConditionsUpdate']>
+    readonly handleLoopSubmit: UnwrapRef<typeof import('./src/utils/handleFunctions')['handleLoopSubmit']>
+    readonly handleLoopUpdate: UnwrapRef<typeof import('./src/utils/handleFunctions')['handleLoopUpdate']>
+    readonly handleReturnSubmit: UnwrapRef<typeof import('./src/utils/handleFunctions')['handleReturnSubmit']>
+    readonly handleReturnUpdate: UnwrapRef<typeof import('./src/utils/handleFunctions')['handleReturnUpdate']>
+    readonly handleVariableSubmit: UnwrapRef<typeof import('./src/utils/handleFunctions')['handleVariableSubmit']>
+    readonly handleVariablesUpdate: UnwrapRef<typeof import('./src/utils/handleFunctions')['handleVariablesUpdate']>
     readonly hexToRgb: UnwrapRef<typeof import('./src/@core/utils/colorConverter')['hexToRgb']>
     readonly ignorableWatch: UnwrapRef<typeof import('@vueuse/core')['ignorableWatch']>
     readonly inject: UnwrapRef<typeof import('vue')['inject']>
@@ -433,6 +507,7 @@ declare module 'vue' {
     readonly isDefined: UnwrapRef<typeof import('@vueuse/core')['isDefined']>
     readonly isEmpty: UnwrapRef<typeof import('./src/@core/utils/helpers')['isEmpty']>
     readonly isEmptyArray: UnwrapRef<typeof import('./src/@core/utils/helpers')['isEmptyArray']>
+    readonly isLoopValid: UnwrapRef<typeof import('./src/utils/handleFunctions')['isLoopValid']>
     readonly isNullOrUndefined: UnwrapRef<typeof import('./src/@core/utils/helpers')['isNullOrUndefined']>
     readonly isObject: UnwrapRef<typeof import('./src/@core/utils/helpers')['isObject']>
     readonly isProxy: UnwrapRef<typeof import('vue')['isProxy']>
@@ -442,6 +517,7 @@ declare module 'vue' {
     readonly isToday: UnwrapRef<typeof import('./src/@core/utils/helpers')['isToday']>
     readonly kFormatter: UnwrapRef<typeof import('./src/@core/utils/formatters')['kFormatter']>
     readonly lengthValidator: UnwrapRef<typeof import('./src/@core/utils/validators')['lengthValidator']>
+    readonly loadStoredVariables: UnwrapRef<typeof import('./src/utils/variables')['loadStoredVariables']>
     readonly logicAnd: UnwrapRef<typeof import('@vueuse/math')['logicAnd']>
     readonly logicNot: UnwrapRef<typeof import('@vueuse/math')['logicNot']>
     readonly logicOr: UnwrapRef<typeof import('@vueuse/math')['logicOr']>
@@ -501,12 +577,15 @@ declare module 'vue' {
     readonly resolveUnref: UnwrapRef<typeof import('@vueuse/core')['resolveUnref']>
     readonly resolveVuetifyTheme: UnwrapRef<typeof import('./src/@core/utils/vuetify')['resolveVuetifyTheme']>
     readonly rgbaToHex: UnwrapRef<typeof import('./src/@core/utils/colorConverter')['rgbaToHex']>
+    readonly selectedParentId: UnwrapRef<typeof import('./src/utils/functions')['selectedParentId']>
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
     readonly shallowReactive: UnwrapRef<typeof import('vue')['shallowReactive']>
     readonly shallowReadonly: UnwrapRef<typeof import('vue')['shallowReadonly']>
     readonly shallowRef: UnwrapRef<typeof import('vue')['shallowRef']>
     readonly storeToRefs: UnwrapRef<typeof import('pinia')['storeToRefs']>
+    readonly storeVariable: UnwrapRef<typeof import('./src/utils/variables')['storeVariable']>
+    readonly submittedData: UnwrapRef<typeof import('./src/utils/handleFunctions')['submittedData']>
     readonly syncRef: UnwrapRef<typeof import('@vueuse/core')['syncRef']>
     readonly syncRefs: UnwrapRef<typeof import('@vueuse/core')['syncRefs']>
     readonly templateRef: UnwrapRef<typeof import('@vueuse/core')['templateRef']>
@@ -526,6 +605,7 @@ declare module 'vue' {
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
     readonly unrefElement: UnwrapRef<typeof import('@vueuse/core')['unrefElement']>
     readonly until: UnwrapRef<typeof import('@vueuse/core')['until']>
+    readonly updateHeight: UnwrapRef<typeof import('./src/utils/functions')['updateHeight']>
     readonly urlValidator: UnwrapRef<typeof import('./src/@core/utils/validators')['urlValidator']>
     readonly useAbs: UnwrapRef<typeof import('@vueuse/math')['useAbs']>
     readonly useActiveElement: UnwrapRef<typeof import('@vueuse/core')['useActiveElement']>

@@ -1,30 +1,21 @@
 <script lang="ts" setup>
-import { LogicButton, VariableEntry } from '@/utils/type';
+import { enterVariables, LogicButton } from '@/utils/type';
 import { ref } from 'vue';
 
-const enterVariables = ref([
-    { label: "Âge de l'assuré", key: "age" },
-    { label: "Capital de l'assuré", key: "capital" },
-    { label: "Taux", key: "taux" },
-    { label: "Frais fixes", key: "frais_fixes" }
-]);
-
-const emit = defineEmits<{
-    (e: 'update:variables', vars: VariableEntry[]): void;
-    (e: 'update:conditions', vars: VariableEntry[]): void;
-}>();
-
-const handleVariableUpdate = (vars: VariableEntry[]) => {
-    emit('update:variables', vars);
-};
+const props = defineProps<{
+    defaultOperand?: string
+}>()
 
 const selectedVariableLabel = ref<string | undefined>(undefined)
-
 const dialogStates = ref<boolean[]>(LogicButton.map(() => false));
+
+const emit = defineEmits<{}>();
+
+const handleVariables = handleVariablesUpdate(emit, formVariables);
 
 function openDialog(index: number) {
     selectedVariableLabel.value = enterVariables.value[index].key
-    console.log(selectedVariableLabel, "selectedVariableLabel");
+    console.log(selectedVariableLabel.value);
 
     dialogStates.value[index] = true
 }
@@ -44,20 +35,12 @@ function closeDialog(index: number) {
                 </v-btn>
             </div>
         </div>
-
         <div v-for="(btn, index) in LogicButton" :key="index">
-            <v-dialog v-model="dialogStates[index]" max-width="500">
-                <v-card :title="btn.label">
-                    <v-card-text>
-                        <LogicFormRuleEditor type="variable" :defaultOperand="selectedVariableLabel"
-                            @update:variables="handleVariableUpdate" />
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn text="Fermer" @click="closeDialog(index)" />
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
+            <LogicDialog v-model="dialogStates[index]" title="Variable" :index="index" @close="closeDialog(index)">
+                <LogicFormRuleEditor type="variable" :defaultOperand="selectedVariableLabel"
+                    :onSubmitVariable="handleVariableSubmit" @update:variables="handleVariables" :onClose="closeDialog"
+                    :index="index" />
+            </LogicDialog>
         </div>
     </div>
 </template>

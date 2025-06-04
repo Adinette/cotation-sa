@@ -1,6 +1,14 @@
 // type.ts
 
 export type VariantType = 'flat' | 'text' | 'elevated' | 'tonal' | 'outlined' | 'plain'
+export type EditorType = 'variable' | 'operation' | 'condition' | 'loop' | 'return' | 'continue' | 'break'
+export type LogicButtonType = {
+  label: string
+  variant: VariantType
+  type: EditorType
+  under?: boolean
+}
+
 export enum BlocType {
   INPUT_VARIABLE = "input_variable",
   DEFINE_VARIABLE = "define_variable",
@@ -15,41 +23,55 @@ export enum BlocType {
   FUNCTION_CALL = "function_call",
 }
 
-export interface VariableEntry  {
+export interface FieldConfig {
   name: string
-  type: string
+  label: string
+  type: 'select' | 'textarea' | 'text'
+  multiple?: boolean
+  options?: string[]
+  dynamicOptions?: boolean
+}
+
+export interface VariableEntry {
+  name: string
   operation: string
- operand: string[]; 
 }
 
-export interface ReturnEntry  {
+export interface ReturnEntry {
   name: string
-  type: string 
 }
 
 
-export interface ConditionEntry  {
+export interface ConditionEntry {
   left: string
   right: string
   operation: string
 }
 
-export interface LoopEntry  {
-  collectionsName: string,
-  collectionsType: string,
-  collectionsValues: string[],
+export interface LoopEntry {
+  tableName: string,
   loopVariable: string,
-  loopVariableType: string
 }
 
-export const LogicButton = [
-    { label: 'Ajouter une variable', variant: 'tonal', type: "variable" },
-    { label: 'Condition', variant: 'tonal', type: "condition" },
-    { label: 'Then', variant: 'outlined', type: "then", under: true },
-    { label: 'Else', variant: 'outlined', type: "else", under: true },
-    { label: 'Opération', variant: 'tonal', type: "operation" },
-    { label: 'Boucle', variant: 'tonal', type: "loop" },
-    { label: 'Passer', variant: 'outlined', type: "continue", under: true },
-    { label: 'Arreter', variant: 'outlined', type: "break", under: true },
-    { label: 'Retour', variant: 'tonal', type: "return" }
+export const LogicButton: LogicButtonType[] = [
+  { label: 'Variable', variant: 'tonal', type: "variable" },
+  { label: 'Condition', variant: 'tonal', type: "condition" },
+  { label: 'Opération', variant: 'tonal', type: "operation" },
+  { label: 'Boucle', variant: 'tonal', type: "loop" },
+  { label: 'Passer', variant: 'outlined', type: "continue", under: true },
+  { label: 'Arreter', variant: 'outlined', type: "break", under: true },
+  { label: 'Retour', variant: 'tonal', type: "return" }
 ]
+
+export const enterVariables = ref([
+  { label: "Âge de l'assuré", key: "age" },
+  { label: "Capital de l'assuré", key: "capital" },
+  { label: "Taux", key: "taux" },
+  { label: "Frais fixes", key: "frais_fixes" }
+]);
+
+export const comparisonOperations = ref([
+  '==', '!=', '>', '<', '>=', '<='
+])
+
+export const baseItems = ['frais_fixe', 'capital', 'taux', 'age']

@@ -61,6 +61,8 @@ const operation = {
 };
 
 const loop = {
+
+
 	id: "loop1",
 	type: "loop",
 	loopVariable: "garantie",
@@ -104,13 +106,13 @@ const loop_break = {
 };
 
 const function_call = {
-  "id": "func1",
-  "type": "function_call",
-  "name": "sort",
-  "args": [
-    { "type": "variable", "value": "garanties" },
-    { "type": "string", "value": "capital" },
-    { "type": "string", "value": "desc" }
-  ],
-  "assignTo": "garanties_triees"
+	"id": "func1",
+	"type": "function_call",
+	"name": "sort",
+	"args": [
+		{ "type": "variable", "value": "garanties" },
+		{ "type": "string", "value": "capital" },
+		{ "type": "string", "value": "desc" }
+	],
+	"assignTo": "garanties_triees"
 }
