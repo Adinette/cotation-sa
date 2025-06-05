@@ -1,4 +1,3 @@
-// type.ts
 
 export type VariantType = 'flat' | 'text' | 'elevated' | 'tonal' | 'outlined' | 'plain'
 export type EditorType = 'variable' | 'operation' | 'condition' | 'loop' | 'return' | 'continue' | 'break'

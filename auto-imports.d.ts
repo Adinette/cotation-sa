@@ -23,6 +23,8 @@ declare global {
   const betweenValidator: typeof import('./src/@core/utils/validators')['betweenValidator']
   const childNodeStyle: typeof import('./src/utils/style')['childNodeStyle']
   const comparisonOperations: typeof import('./src/utils/type')['comparisonOperations']
+  const computeNodeHeightWithChildren: typeof import('./src/utils/functions')['computeNodeHeightWithChildren']
+  const computeNodeWidthWithChildren: typeof import('./src/utils/functions')['computeNodeWidthWithChildren']
   const computed: typeof import('vue')['computed']
   const computedAsync: typeof import('@vueuse/core')['computedAsync']
   const computedEager: typeof import('@vueuse/core')['computedEager']
@@ -438,6 +440,8 @@ declare module 'vue' {
     readonly baseItems: UnwrapRef<typeof import('./src/utils/type')['baseItems']>
     readonly betweenValidator: UnwrapRef<typeof import('./src/@core/utils/validators')['betweenValidator']>
     readonly comparisonOperations: UnwrapRef<typeof import('./src/utils/type')['comparisonOperations']>
+    readonly computeNodeHeightWithChildren: UnwrapRef<typeof import('./src/utils/functions')['computeNodeHeightWithChildren']>
+    readonly computeNodeWidthWithChildren: UnwrapRef<typeof import('./src/utils/functions')['computeNodeWidthWithChildren']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly computedAsync: UnwrapRef<typeof import('@vueuse/core')['computedAsync']>
     readonly computedEager: UnwrapRef<typeof import('@vueuse/core')['computedEager']>

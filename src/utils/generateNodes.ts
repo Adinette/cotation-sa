@@ -51,8 +51,7 @@ export function generateVariableNode(variable: any, nodes: any[], btnType: strin
             }
         }
     )
-    console.log(nodes);
-
+    return;
 }
 
 // RETURN
@@ -61,7 +60,7 @@ export function generateReturnNodes(ret: any, nodes: any[]) {
     const nodeId = `var-${mainRet}`
 
     const exists = nodes.some(n => n.id === nodeId)
-    if (exists) return
+    if (exists) return;
 
     nodes.push({
         id: nodeId,
@@ -94,7 +93,7 @@ export function generateReturnNodes(ret: any, nodes: any[]) {
             }
 
         })
-    console.log(nodes);
+    return;
 };
 
 //LOOP
@@ -137,8 +136,7 @@ export function generateLoopNodes(loop: any, nodes: any[]) {
         },
     )
     updateHeight(nodes, nodeId);
-    console.log(nodes);
-    return nodeId
+    return nodeId;
 };
 
 //CONDITIONS
@@ -171,11 +169,23 @@ export function generateConditionNode(condition: any, variable: any, ret: any, l
     let conditionId: string | undefined;
 
     if (btnType === 'continue' || btnType === 'break') {
-        const loopId = generateLoopNodes(loop, nodes);
+        const existingLoop = nodes.find(n =>
+            n.type === 'loop' &&
+            n.data?.label === "Boucle"
+        );
+
+        let loopId: string;
+
+        if (existingLoop) {
+            loopId = existingLoop.id;
+
+        } else {
+            loopId = generateLoopNodes(loop, nodes);
+        }
+
         conditionId = `${loopId}-condition`;
         const conditionNodes = createConditionContainer(conditionId, mainCond, loopId);
         nodes.push(...conditionNodes);
-        console.log(nodes);
 
         updateHeight(nodes, loopId);
     } else if (btnType === 'condition') {
@@ -185,7 +195,6 @@ export function generateConditionNode(condition: any, variable: any, ret: any, l
         updateHeight(nodes, conditionId);
     }
 
-    // Ajouter les nœuds continue / break
     if (btnType === 'continue') {
         const thenNodeId = `${conditionId}-then`;
         const continueNode = createChildNode(thenNodeId, 'Continue', BlocType.CONTINUE, {
@@ -193,7 +202,6 @@ export function generateConditionNode(condition: any, variable: any, ret: any, l
         });
         nodes.push(continueNode);
         updateHeight(nodes, thenNodeId);
-        console.log(nodes);
     }
 
     if (btnType === 'break') {

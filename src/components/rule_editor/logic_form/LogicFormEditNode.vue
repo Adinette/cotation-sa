@@ -24,11 +24,9 @@ const handleLoops = handleLoopUpdate(emit, formLoop);
 function onSelectedButtonUpdate(btn: LogicButtonType) {
     selectedButton.value = btn
     emit('update:selectedButton', btn)
-    console.log('⚡ Event reçu:', btn.type)
 }
 
 function closeDialog(index: number) {
-    console.log('closeDialog called for index:', index)
     dialogStates.value = [...dialogStates.value.slice(0, index), false, ...dialogStates.value.slice(index + 1)]
     if (index === 0) {
         showEditorModal.value = false
@@ -48,8 +46,6 @@ onMounted(() => {
             selectedVariableNode.value = { label, nodeId }
             showEditorModal.value = true
             dialogStates.value[0] = true
-            console.log(dialogStates.value);
-
             emit('update:meta', { label, nodeId })
         }
     })

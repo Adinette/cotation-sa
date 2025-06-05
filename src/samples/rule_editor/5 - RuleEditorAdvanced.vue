@@ -50,27 +50,22 @@ function onVariablesUpdate(newVariables: VariableEntry | VariableEntry[]) {
 
 function onConditionUpdate(newCond: ConditionEntry[]) {
   formConditions.value = newCond
-  console.log(newCond, 'Conditions reçues dans RuleEditor')
 }
 
 function onReturnsUpdate(newRet: ReturnEntry[]) {
   formReturn.value = newRet
-  console.log(newRet, 'Retour reçues dans RuleEditor')
 }
 
 function onLoopUpdate(newLoop: LoopEntry[]) {
   formLoop.value = newLoop
-  console.log(newLoop, 'boucle reçues dans RuleEditor')
 }
 
 function onSelectedButtonUpdate(btn: LogicButtonType) {
   selectedButton.value = btn
-  console.log('⚡ Event reçu dans ruleEditr:', btn.type)
 }
 
 function onMetaUpdate(payload: { label: string; nodeId: string }) {
   currentMeta.value = payload
-  console.log(payload, 'payload')
 }
 
 // 🎛️ SIDEBAR HANDLING
@@ -93,20 +88,16 @@ function exportJSON() {
     nodes: nodes.value.map(n => ({ id: n.id, type: n.type, data: n.data })),
     edges: edges.value.map(e => ({ source: e.source, target: e.target }))
   }
-  console.log('🧾 Rule JSON:', JSON.stringify(rule, null, 2))
-  alert("Règle exportée dans la console")
 }
 
 function generateNodes() {
   const btnType = selectedButton.value?.type || ''
 
   if (!submittedData.value && currentMeta.value.label === 'Then') {
-    console.log('⏸️ Donnée soumise manquante. `generateConditionNode` ignoré.', submittedData.value)
     return
   }
 
   const variablesArray = Array.isArray(formVariables.value) ? formVariables.value : [formVariables.value]
-
   formConditions.value.forEach((condition, i) => {
     generateConditionNode(
       condition,

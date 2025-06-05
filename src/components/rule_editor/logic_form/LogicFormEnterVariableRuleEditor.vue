@@ -15,8 +15,6 @@ const handleVariables = handleVariablesUpdate(emit, formVariables);
 
 function openDialog(index: number) {
     selectedVariableLabel.value = enterVariables.value[index].key
-    console.log(selectedVariableLabel.value);
-
     dialogStates.value[index] = true
 }
 function closeDialog(index: number) {

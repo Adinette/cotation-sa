@@ -16,7 +16,6 @@ const handleSubmit = (data: any) => {
     loop.value.push(data)
     emit('update:loop', loop.value)
     props?.onSubmit?.(data)
-    console.log(data);
 }
 
 const fields: FieldConfig[] = [

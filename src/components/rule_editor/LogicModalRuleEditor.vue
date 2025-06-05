@@ -38,7 +38,6 @@ function openDialog(index: number) {
     selectedButton.value = btn;
     dialogStates.value[index] = true;
     emit('update:selectedButton', btn);
-    console.log('🟢 Bouton dans modal :', btn.type);
 }
 
 function closeDialog(index: number) {
@@ -49,7 +48,6 @@ const handleConditions = handleConditionsUpdate(emit, formReturn);
 const handleReturns = handleReturnUpdate(emit, formConditions);
 const handleLoops = handleLoopUpdate(emit, formLoop);
 
-// Props communs pour LogicFormRuleEditor pour éviter duplication
 function getCommonEditorProps(index: number) {
     return {
         label: props.label,
