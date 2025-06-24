@@ -8,12 +8,22 @@ export {}
 declare global {
   const $api: typeof import('./src/utils/api')['$api']
   const BlocType: typeof import('./src/utils/type')['BlocType']
+  const CHILD_MAX_HEIGHT: typeof import('./src/utils/generateNodeFunction')['CHILD_MAX_HEIGHT']
+  const CHILD_MAX_WIDTH: typeof import('./src/utils/generateNodeFunction')['CHILD_MAX_WIDTH']
+  const CHILD_MIN_HEIGHT: typeof import('./src/utils/generateNodeFunction')['CHILD_MIN_HEIGHT']
+  const CHILD_MIN_WIDTH: typeof import('./src/utils/generateNodeFunction')['CHILD_MIN_WIDTH']
   const COOKIE_MAX_AGE_1_YEAR: typeof import('./src/utils/constants')['COOKIE_MAX_AGE_1_YEAR']
   const EffectScope: typeof import('vue')['EffectScope']
   const LogicButton: typeof import('./src/utils/type')['LogicButton']
+  const PARENT_MAX_HEIGHT: typeof import('./src/utils/generateNodeFunction')['PARENT_MAX_HEIGHT']
+  const PARENT_MAX_WIDTH: typeof import('./src/utils/generateNodeFunction')['PARENT_MAX_WIDTH']
+  const PARENT_MIN_HEIGHT: typeof import('./src/utils/generateNodeFunction')['PARENT_MIN_HEIGHT']
+  const PARENT_MIN_WIDTH: typeof import('./src/utils/generateNodeFunction')['PARENT_MIN_WIDTH']
+  const VariableDefinitionVueFlowNode: typeof import('./src/class/VariableDefinitionVueFlowNode')['VariableDefinitionVueFlowNode']
   const acceptHMRUpdate: typeof import('pinia')['acceptHMRUpdate']
   const addNestedNode: typeof import('./src/utils/generateNodeFunction')['addNestedNode']
   const addNode: typeof import('./src/composables/useGraph')['addNode']
+  const addNodeAfterBranch: typeof import('./src/utils/handleFunctions')['addNodeAfterBranch']
   const alphaDashValidator: typeof import('./src/@core/utils/validators')['alphaDashValidator']
   const alphaValidator: typeof import('./src/@core/utils/validators')['alphaValidator']
   const asyncComputed: typeof import('@vueuse/core')['asyncComputed']
@@ -37,11 +47,14 @@ declare global {
   const createChildNode: typeof import('./src/utils/generateNodeFunction')['createChildNode']
   const createChildNodes: typeof import('./src/utils/generateNodeFunction')['createChildNodes']
   const createConditionContainer: typeof import('./src/utils/generateNodeFunction')['createConditionContainer']
+  const createConditonChildNode: typeof import('./src/utils/generateNodeFunction')['createConditonChildNode']
+  const createConditonChildNodes: typeof import('./src/utils/generateNodeFunction')['createConditonChildNodes']
   const createEventHook: typeof import('@vueuse/core')['createEventHook']
   const createGenericProjection: typeof import('@vueuse/math')['createGenericProjection']
   const createGlobalState: typeof import('@vueuse/core')['createGlobalState']
   const createInjectionState: typeof import('@vueuse/core')['createInjectionState']
   const createNode: typeof import('./src/utils/nodeFactory')['createNode']
+  const createParentNode: typeof import('./src/utils/generateNodeFunction')['createParentNode']
   const createPinia: typeof import('pinia')['createPinia']
   const createProjection: typeof import('@vueuse/math')['createProjection']
   const createReactiveFn: typeof import('@vueuse/core')['createReactiveFn']
@@ -75,14 +88,20 @@ declare global {
   const formatDateToMonthShort: typeof import('./src/@core/utils/formatters')['formatDateToMonthShort']
   const functions: typeof import('./src/utils/functions')['default']
   const generateConditionNode: typeof import('./src/utils/generateNodes')['generateConditionNode']
+  const generateConditionNodes: typeof import('./src/utils/generateNodeCondition')['generateConditionNodes']
   const generateLoopNode: typeof import('./src/utils/generateNodes')['generateLoopNode']
-  const generateLoopNodes: typeof import('./src/utils/generateNodes')['generateLoopNodes']
+  const generateLoopNodes: typeof import('./src/utils/generateNodeLoop')['generateLoopNodes']
   const generateReturnNode: typeof import('./src/utils/generateNodes')['generateReturnNode']
-  const generateReturnNodes: typeof import('./src/utils/generateNodes')['generateReturnNodes']
+  const generateReturnNodes: typeof import('./src/utils/generateNodeReturn')['generateReturnNodes']
   const generateVariableNode: typeof import('./src/utils/generateNodes')['generateVariableNode']
   const getActivePinia: typeof import('pinia')['getActivePinia']
+  const getAllDescendants: typeof import('./src/utils/functions')['getAllDescendants']
+  const getBoundingBox: typeof import('./src/utils/functions')['getBoundingBox']
+  const getColorByType: typeof import('./src/utils/generateNodeFunction')['getColorByType']
   const getCurrentInstance: typeof import('vue')['getCurrentInstance']
   const getCurrentScope: typeof import('vue')['getCurrentScope']
+  const getNodeSize: typeof import('./src/utils/functions')['getNodeSize']
+  const getNodeStyleValue: typeof import('./src/utils/functions')['getNodeStyleValue']
   const h: typeof import('vue')['h']
   const handleConditionClick: typeof import('./src/utils/handleFunctions')['handleConditionClick']
   const handleConditionSubmit: typeof import('./src/utils/handleFunctions')['handleConditionSubmit']
@@ -98,7 +117,9 @@ declare global {
   const ignorableWatch: typeof import('@vueuse/core')['ignorableWatch']
   const inject: typeof import('vue')['inject']
   const injectLocal: typeof import('@vueuse/core')['injectLocal']
+  const insertLoopSequenceBetween: typeof import('./src/utils/generateNodeLoop')['insertLoopSequenceBetween']
   const integerValidator: typeof import('./src/@core/utils/validators')['integerValidator']
+  const isAdaptableParent: typeof import('./src/utils/functions')['isAdaptableParent']
   const isDefined: typeof import('@vueuse/core')['isDefined']
   const isEmpty: typeof import('./src/@core/utils/helpers')['isEmpty']
   const isEmptyArray: typeof import('./src/@core/utils/helpers')['isEmptyArray']
@@ -136,14 +157,17 @@ declare global {
   const onErrorCaptured: typeof import('vue')['onErrorCaptured']
   const onKeyStroke: typeof import('@vueuse/core')['onKeyStroke']
   const onLongPress: typeof import('@vueuse/core')['onLongPress']
+  const onLoopUpdate: typeof import('./src/utils/generateNodeLoop')['onLoopUpdate']
   const onMounted: typeof import('vue')['onMounted']
   const onRenderTracked: typeof import('vue')['onRenderTracked']
   const onRenderTriggered: typeof import('vue')['onRenderTriggered']
   const onScopeDispose: typeof import('vue')['onScopeDispose']
   const onServerPrefetch: typeof import('vue')['onServerPrefetch']
   const onStartTyping: typeof import('@vueuse/core')['onStartTyping']
+  const onSubmitVariableOrOperation: typeof import('./src/utils/generateNodeVariableOrOperation')['onSubmitVariableOrOperation']
   const onUnmounted: typeof import('vue')['onUnmounted']
   const onUpdated: typeof import('vue')['onUpdated']
+  const onVariablesUpdate: typeof import('./src/utils/generateNodeVariableOrOperation')['onVariablesUpdate']
   const onWatcherCleanup: typeof import('vue')['onWatcherCleanup']
   const paginationMeta: typeof import('./src/utils/paginationMeta')['paginationMeta']
   const passwordValidator: typeof import('./src/@core/utils/validators')['passwordValidator']
@@ -173,6 +197,7 @@ declare global {
   const resolveUnref: typeof import('@vueuse/core')['resolveUnref']
   const resolveVuetifyTheme: typeof import('./src/@core/utils/vuetify')['resolveVuetifyTheme']
   const rgbaToHex: typeof import('./src/@core/utils/colorConverter')['rgbaToHex']
+  const selectedButton: typeof import('./src/utils/type')['selectedButton']
   const selectedConditionParentId: typeof import('./src/utils/functions')['selectedConditionParentId']
   const selectedElseParentId: typeof import('./src/utils/functions')['selectedElseParentId']
   const selectedParentId: typeof import('./src/utils/functions')['selectedParentId']
@@ -198,6 +223,7 @@ declare global {
   const toRefs: typeof import('vue')['toRefs']
   const toValue: typeof import('vue')['toValue']
   const triggerRef: typeof import('vue')['triggerRef']
+  const tryAddEdge: typeof import('./src/utils/functions')['tryAddEdge']
   const tryOnBeforeMount: typeof import('@vueuse/core')['tryOnBeforeMount']
   const tryOnBeforeUnmount: typeof import('@vueuse/core')['tryOnBeforeUnmount']
   const tryOnMounted: typeof import('@vueuse/core')['tryOnMounted']
@@ -430,7 +456,6 @@ declare module 'vue' {
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly LogicButton: UnwrapRef<typeof import('./src/utils/type')['LogicButton']>
     readonly acceptHMRUpdate: UnwrapRef<typeof import('pinia')['acceptHMRUpdate']>
-    readonly addNestedNode: UnwrapRef<typeof import('./src/utils/generateNodeFunction')['addNestedNode']>
     readonly addNode: UnwrapRef<typeof import('./src/composables/useGraph')['addNode']>
     readonly alphaDashValidator: UnwrapRef<typeof import('./src/@core/utils/validators')['alphaDashValidator']>
     readonly alphaValidator: UnwrapRef<typeof import('./src/@core/utils/validators')['alphaValidator']>
@@ -440,8 +465,6 @@ declare module 'vue' {
     readonly baseItems: UnwrapRef<typeof import('./src/utils/type')['baseItems']>
     readonly betweenValidator: UnwrapRef<typeof import('./src/@core/utils/validators')['betweenValidator']>
     readonly comparisonOperations: UnwrapRef<typeof import('./src/utils/type')['comparisonOperations']>
-    readonly computeNodeHeightWithChildren: UnwrapRef<typeof import('./src/utils/functions')['computeNodeHeightWithChildren']>
-    readonly computeNodeWidthWithChildren: UnwrapRef<typeof import('./src/utils/functions')['computeNodeWidthWithChildren']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly computedAsync: UnwrapRef<typeof import('@vueuse/core')['computedAsync']>
     readonly computedEager: UnwrapRef<typeof import('@vueuse/core')['computedEager']>
@@ -451,9 +474,6 @@ declare module 'vue' {
     readonly controlledComputed: UnwrapRef<typeof import('@vueuse/core')['controlledComputed']>
     readonly controlledRef: UnwrapRef<typeof import('@vueuse/core')['controlledRef']>
     readonly createApp: UnwrapRef<typeof import('vue')['createApp']>
-    readonly createChildNode: UnwrapRef<typeof import('./src/utils/generateNodeFunction')['createChildNode']>
-    readonly createChildNodes: UnwrapRef<typeof import('./src/utils/generateNodeFunction')['createChildNodes']>
-    readonly createConditionContainer: UnwrapRef<typeof import('./src/utils/generateNodeFunction')['createConditionContainer']>
     readonly createEventHook: UnwrapRef<typeof import('@vueuse/core')['createEventHook']>
     readonly createGenericProjection: UnwrapRef<typeof import('@vueuse/math')['createGenericProjection']>
     readonly createGlobalState: UnwrapRef<typeof import('@vueuse/core')['createGlobalState']>
@@ -464,7 +484,6 @@ declare module 'vue' {
     readonly createReusableTemplate: UnwrapRef<typeof import('@vueuse/core')['createReusableTemplate']>
     readonly createSharedComposable: UnwrapRef<typeof import('@vueuse/core')['createSharedComposable']>
     readonly createTemplatePromise: UnwrapRef<typeof import('@vueuse/core')['createTemplatePromise']>
-    readonly createThenDetailNode: UnwrapRef<typeof import('./src/utils/generateNodeFunction')['createThenDetailNode']>
     readonly createUnrefFn: UnwrapRef<typeof import('@vueuse/core')['createUnrefFn']>
     readonly createUrl: UnwrapRef<typeof import('./src/@core/composable/createUrl')['createUrl']>
     readonly customRef: UnwrapRef<typeof import('vue')['customRef']>
@@ -486,10 +505,9 @@ declare module 'vue' {
     readonly formVariables: UnwrapRef<typeof import('./src/utils/handleFunctions')['formVariables']>
     readonly formatDate: UnwrapRef<typeof import('./src/@core/utils/formatters')['formatDate']>
     readonly formatDateToMonthShort: UnwrapRef<typeof import('./src/@core/utils/formatters')['formatDateToMonthShort']>
-    readonly generateConditionNode: UnwrapRef<typeof import('./src/utils/generateNodes')['generateConditionNode']>
-    readonly generateLoopNodes: UnwrapRef<typeof import('./src/utils/generateNodes')['generateLoopNodes']>
-    readonly generateReturnNodes: UnwrapRef<typeof import('./src/utils/generateNodes')['generateReturnNodes']>
-    readonly generateVariableNode: UnwrapRef<typeof import('./src/utils/generateNodes')['generateVariableNode']>
+    readonly generateConditionNodes: UnwrapRef<typeof import('./src/utils/generateNodeCondition')['generateConditionNodes']>
+    readonly generateLoopNodes: UnwrapRef<typeof import('./src/utils/generateNodeLoop')['generateLoopNodes']>
+    readonly generateReturnNodes: UnwrapRef<typeof import('./src/utils/generateNodeReturn')['generateReturnNodes']>
     readonly getActivePinia: UnwrapRef<typeof import('pinia')['getActivePinia']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
@@ -553,6 +571,7 @@ declare module 'vue' {
     readonly onStartTyping: UnwrapRef<typeof import('@vueuse/core')['onStartTyping']>
     readonly onUnmounted: UnwrapRef<typeof import('vue')['onUnmounted']>
     readonly onUpdated: UnwrapRef<typeof import('vue')['onUpdated']>
+    readonly onVariablesUpdate: UnwrapRef<typeof import('./src/utils/generateNodeVariableOrOperation')['onVariablesUpdate']>
     readonly onWatcherCleanup: UnwrapRef<typeof import('vue')['onWatcherCleanup']>
     readonly paginationMeta: UnwrapRef<typeof import('./src/utils/paginationMeta')['paginationMeta']>
     readonly passwordValidator: UnwrapRef<typeof import('./src/@core/utils/validators')['passwordValidator']>
@@ -581,6 +600,7 @@ declare module 'vue' {
     readonly resolveUnref: UnwrapRef<typeof import('@vueuse/core')['resolveUnref']>
     readonly resolveVuetifyTheme: UnwrapRef<typeof import('./src/@core/utils/vuetify')['resolveVuetifyTheme']>
     readonly rgbaToHex: UnwrapRef<typeof import('./src/@core/utils/colorConverter')['rgbaToHex']>
+    readonly selectedButton: UnwrapRef<typeof import('./src/utils/type')['selectedButton']>
     readonly selectedParentId: UnwrapRef<typeof import('./src/utils/functions')['selectedParentId']>
     readonly setActivePinia: UnwrapRef<typeof import('pinia')['setActivePinia']>
     readonly setMapStoreSuffix: UnwrapRef<typeof import('pinia')['setMapStoreSuffix']>
@@ -601,6 +621,7 @@ declare module 'vue' {
     readonly toRefs: UnwrapRef<typeof import('vue')['toRefs']>
     readonly toValue: UnwrapRef<typeof import('vue')['toValue']>
     readonly triggerRef: UnwrapRef<typeof import('vue')['triggerRef']>
+    readonly tryAddEdge: UnwrapRef<typeof import('./src/utils/functions')['tryAddEdge']>
     readonly tryOnBeforeMount: UnwrapRef<typeof import('@vueuse/core')['tryOnBeforeMount']>
     readonly tryOnBeforeUnmount: UnwrapRef<typeof import('@vueuse/core')['tryOnBeforeUnmount']>
     readonly tryOnMounted: UnwrapRef<typeof import('@vueuse/core')['tryOnMounted']>
@@ -609,7 +630,6 @@ declare module 'vue' {
     readonly unref: UnwrapRef<typeof import('vue')['unref']>
     readonly unrefElement: UnwrapRef<typeof import('@vueuse/core')['unrefElement']>
     readonly until: UnwrapRef<typeof import('@vueuse/core')['until']>
-    readonly updateHeight: UnwrapRef<typeof import('./src/utils/functions')['updateHeight']>
     readonly urlValidator: UnwrapRef<typeof import('./src/@core/utils/validators')['urlValidator']>
     readonly useAbs: UnwrapRef<typeof import('@vueuse/math')['useAbs']>
     readonly useActiveElement: UnwrapRef<typeof import('@vueuse/core')['useActiveElement']>

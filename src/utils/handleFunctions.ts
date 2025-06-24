@@ -1,3 +1,4 @@
+import { Edge, Node } from '@vue-flow/core';
 import { ref } from 'vue';
 import type { ConditionEntry, LoopEntry, ReturnEntry, VariableEntry } from './type';
 
@@ -8,6 +9,9 @@ export const formReturn = ref<ReturnEntry[]>([])
 export const formConditions = ref<ConditionEntry[]>([])
 export const formLoop = ref<LoopEntry[]>([])
 export const submittedData = ref<VariableEntry | ConditionEntry | LoopEntry | ReturnEntry | null>(null);
+
+const nodes = ref<Node[]>([])
+const edges = ref<Edge[]>([])
 
 
 export const handleVariablesUpdate = (emit: any, formVariables: any) => (variables: VariableEntry[]) => {
@@ -58,15 +62,24 @@ export function handleLoopSubmit(data: LoopEntry, onSubmitLoop?: (data: LoopEntr
     onSubmitLoop?.(data);
 }
 
-export function handleConditionClick(nodeId: string, label = 'Then') {
+function inferEndNodeIdFromBranch(branchId: string): string {
+    return branchId.replace(/^then-cond|^else-cond/, 'end-cond');
+}
+
+export function handleConditionClick(nodeId: string, id: string, label = 'Then') {
     selectedParentId.value = nodeId;
+    console.log(nodeId, "value button ")
+    const inferredEndConditionNodeId = inferEndNodeIdFromBranch(nodeId);
     window.dispatchEvent(
         new CustomEvent('open-variable-editor', {
             detail: {
-                nodeId,
                 label,
-                isParent: true
+                isParent: true,
+                nodeId,
+                inferredEndConditionNodeId
             }
         })
     );
 }
+
+

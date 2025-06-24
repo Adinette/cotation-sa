@@ -11,6 +11,11 @@ const dialogStates = ref<boolean[]>(LogicButton.map(() => false))
 const selectedThenParentId = ref<string | null>(null)
 const selectedButton = ref<LogicButtonType | null>(null)
 
+const props = defineProps<{
+    conditionType: string
+}>();
+
+
 const emit = defineEmits<{
     (e: 'update:meta', payload: { label: string, nodeId: string }): void;
     (e: 'update:selectedButton', btn: LogicButtonType): void;
@@ -51,17 +56,34 @@ onMounted(() => {
     })
 })
 
+const filteredButtons = computed(() => {
+
+    if (!props.conditionType) return LogicButton;
+
+    if (props.conditionType.includes('then')) {
+        return LogicButton.filter(btn =>
+            ['Variable', 'Opération', 'Retour'].includes(btn.label)
+        );
+    }
+    if (props.conditionType.includes('else')) {
+        return LogicButton.filter(btn =>
+            ['Variable', 'Condition', 'Opération', 'Boucle', 'Passer', 'Arreter', 'Retour'].includes(btn.label)
+        );
+    }
+
+    return LogicButton;
+});
 </script>
 
 <template>
     <div>
-        <div v-for="(btn, index) in LogicButton" :key="index" class="btn">
+        <div v-for="(btn, index) in filteredButtons" :key="index" class="btn">
             <LogicDialogNested v-model="dialogStates[index]" title="Ajouter un bloc" @close="closeDialog(index)"
                 :disabled="['continue', 'break'].includes(btn.type) && !isLoopValid">
                 <template #default="{ openNestedDialog }">
                     <LogicModalRuleEditor v-if="showEditorModal && selectedVariableNode"
                         :label="selectedVariableNode.label" :nodeId="selectedVariableNode.nodeId"
-                        :btnType="btnTypeValue" :buttons="btnTypeValue" @update:variables="handleVariables"
+                        :btnType="btnTypeValue" :buttons="filteredButtons" @update:variables="handleVariables"
                         @update:conditions="handleConditions" @update:loop="handleLoops" @update:returns="handleReturns"
                         @update:selectedButton="onSelectedButtonUpdate" :onSubmitVariable="handleVariableSubmit"
                         :onSubmitCondition="handleConditionSubmit" :onSubmitLoop="handleLoopSubmit"

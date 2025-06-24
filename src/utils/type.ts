@@ -70,7 +70,8 @@ export const enterVariables = ref([
 ]);
 
 export const comparisonOperations = ref([
-  '==', '!=', '>', '<', '>=', '<='
+  '===', '!==', '>', '<', '>=', '<='
 ])
 
 export const baseItems = ['frais_fixe', 'capital', 'taux', 'age']
+export const selectedButton = ref<LogicButtonType | null>(null)

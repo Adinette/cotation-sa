@@ -3,6 +3,7 @@
 
 // 📦 IMPORTS
 import LogicModalRuleEditor from '@/components/rule_editor/LogicModalRuleEditor.vue'
+import { tryAddEdge } from '@/utils/functions'
 import { ConditionEntry, LogicButton, LogicButtonType, LoopEntry, ReturnEntry, VariableEntry } from '@/utils/type'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
@@ -11,21 +12,15 @@ import { Edge, Node, NodeMouseEvent, VueFlow, useVueFlow } from '@vue-flow/core'
 import '@vue-flow/core/dist/style.css'
 import { MiniMap } from '@vue-flow/minimap'
 import '@vue-flow/minimap/dist/style.css'
-import { ref, watch } from 'vue'
-
-
-// 🔗 VUE FLOW SETUP
-const { onConnect, addEdges } = useVueFlow()
-onConnect(addEdges)
+import { ref } from 'vue'
 
 // 📊 REACTIVE STATE
 const props = defineProps<{
   index: number
   onClose: (index: number) => void
 }>()
-
-const nodes = ref<Node[]>([])
 const edges = ref<Edge[]>([])
+const nodes = ref<Node[]>([])
 const selectedNode = ref<Node | null>(null)
 const showSidebar = ref(false)
 const formVariables = ref<VariableEntry[]>([])
@@ -33,39 +28,109 @@ const formReturn = ref<ReturnEntry[]>([])
 const formConditions = ref<ConditionEntry[]>([])
 const formLoop = ref<LoopEntry[]>([])
 const btnTypeValue = LogicButton
-const selectedConditionParentId = ref<string | null>(null)
-const selectedButton = ref<LogicButtonType | null>(null)
 const currentMeta = ref({ label: '', nodeId: '' })
+const selectedNextNodeId = ref<string | null>(null)
+const currentLoopNodePairs = ref<{ loopNodeId: string; endId: string }[]>([]);
 
+
+// 🔗 VUE FLOW SETUP
+const { onConnect } = useVueFlow()
+
+onConnect(({ source, target }) => {
+  tryAddEdge(source, target)
+})
 // 🔁 HANDLERS
+
 function handleNodeClick({ node }: NodeMouseEvent) {
   if (node?.data?.onClick && typeof node.data.onClick === 'function') {
     node.data.onClick()
   }
 }
 
-function onVariablesUpdate(newVariables: VariableEntry | VariableEntry[]) {
-  formVariables.value = Array.isArray(newVariables) ? newVariables : [newVariables]
-}
-
-function onConditionUpdate(newCond: ConditionEntry[]) {
-  formConditions.value = newCond
-}
-
-function onReturnsUpdate(newRet: ReturnEntry[]) {
-  formReturn.value = newRet
-}
-
-function onLoopUpdate(newLoop: LoopEntry[]) {
-  formLoop.value = newLoop
-}
-
 function onSelectedButtonUpdate(btn: LogicButtonType) {
   selectedButton.value = btn
+  console.log(btn, "btn");
 }
 
 function onMetaUpdate(payload: { label: string; nodeId: string }) {
   currentMeta.value = payload
+}
+onMounted(() => {
+  window.addEventListener('open-variable-editor', (event: Event) => {
+    const customEvent = event as CustomEvent;
+    const { nodeId, inferredEndConditionNodeId } = customEvent.detail;
+    selectedParentId.value = nodeId;
+    selectedNextNodeId.value = inferredEndConditionNodeId;
+  });
+});
+
+function onSubmitVariableOrOperation(data: VariableEntry) {
+  const type = selectedButton.value?.type ?? 'variable';
+  onVariablesUpdate(
+    data,
+    type,
+    nodes,
+    edges,
+    formVariables,
+    selectedNextNodeId.value,
+    selectedParentId.value,
+    currentLoopNodePairs.value
+  );
+}
+
+async function onConditionUpdate(newConditions: ConditionEntry[]) {
+
+  const { nodes: newNodes, edges: newEdges } = generateConditionNodes(
+    newConditions,
+    nodes.value,
+    selectedParentId.value ?? undefined,
+    selectedNextNodeId.value ?? undefined,
+    edges,
+    currentLoopNodePairs.value,
+
+  )
+  nodes.value.push(...newNodes);
+  nodes.value = [...nodes.value];
+  await nextTick();
+  edges.value.push(...newEdges);
+  edges.value = [...edges.value];
+
+  formConditions.value.push(...newConditions)
+}
+
+
+function onReturnsUpdate(newReturn: ReturnEntry[]) {
+  const lastNode = nodes.value[nodes.value.length - 1];
+  const { nodes: newNodes, edges: newEdges } = generateReturnNodes(newReturn, nodes.value, selectedNextNodeId.value ?? undefined,
+    lastNode?.id, edges, currentLoopNodePairs.value)
+  nodes.value.push(...newNodes)
+  edges.value.push(...newEdges)
+  formReturn.value.push(...newReturn)
+  console.log(nodes.value);
+
+}
+
+async function onLoopUpdate(newLoop: LoopEntry[], btn: LogicButtonType) {
+  const { nodes: newNodes, edges: newEdges, loopNodePairs } = generateLoopNodes(
+    newLoop,
+    nodes.value,
+    selectedParentId.value ?? undefined,
+    selectedNextNodeId.value ?? undefined,
+    edges
+  );
+
+  if (newNodes.length > 0) {
+    nodes.value.push(...newNodes);
+    nodes.value = [...nodes.value];
+    edges.value.push(...newEdges);
+    edges.value = [...edges.value];
+    formLoop.value.push(...newLoop);
+    await nextTick();
+  }
+
+  if (loopNodePairs.length > 0) {
+    currentLoopNodePairs.value = loopNodePairs;
+  }
 }
 
 // 🎛️ SIDEBAR HANDLING
@@ -89,50 +154,6 @@ function exportJSON() {
     edges: edges.value.map(e => ({ source: e.source, target: e.target }))
   }
 }
-
-function generateNodes() {
-  const btnType = selectedButton.value?.type || ''
-
-  if (!submittedData.value && currentMeta.value.label === 'Then') {
-    return
-  }
-
-  const variablesArray = Array.isArray(formVariables.value) ? formVariables.value : [formVariables.value]
-  formConditions.value.forEach((condition, i) => {
-    generateConditionNode(
-      condition,
-      variablesArray[i] ?? {},
-      formReturn.value[i],
-      formLoop.value[i],
-      nodes.value,
-      variablesArray,
-      btnType
-    )
-  })
-
-  if (formConditions.value.length === 0 && formVariables.value.length > 0) {
-    formVariables.value.forEach((v) => generateVariableNode(v, nodes.value, btnType))
-  }
-
-  if (formReturn.value.length > 0 && !selectedParentId.value) {
-    formReturn.value.forEach((v) => generateReturnNodes(v, nodes.value))
-  }
-
-  if (formLoop.value.length > 0 && !selectedParentId.value) {
-    formLoop.value.forEach((v) => generateLoopNodes(v, nodes.value))
-  }
-
-  selectedConditionParentId.value = null
-  submittedData.value = null
-}
-
-// 📡 WATCHERS
-watch(
-  [formConditions, formVariables, formReturn, formLoop, selectedConditionParentId, selectedButton],
-  generateNodes,
-  { deep: true }
-)
-
 </script>
 
 <template>
@@ -140,13 +161,13 @@ watch(
     <div class="w-1/5 bg-white border-l flex flex-col">
       <div class="p-4">
         <h2 class="text-xl font-bold">Éditeur de règles graphique</h2>
-        <LogicFormEnterVariableRuleEditor @update:variables="onVariablesUpdate" />
+        <LogicFormEnterVariableRuleEditor @update:variables="onSubmitVariableOrOperation" />
       </div>
 
       <div class="bloc">
         <div class="bloc-button">
           <h2 class="text-lg font-bold mb-2">Logique</h2>
-          <LogicModalRuleEditor @update:variables="onVariablesUpdate" @update:conditions="onConditionUpdate"
+          <LogicModalRuleEditor @update:variables="onSubmitVariableOrOperation" @update:conditions="onConditionUpdate"
             @update:loop="onLoopUpdate" @update:returns="onReturnsUpdate" :btnType="btnTypeValue"
             :buttons="btnTypeValue" @update:selectedButton="onSelectedButtonUpdate" />
         </div>
@@ -154,15 +175,17 @@ watch(
         <div class="bloc-editor">
           <h2 class="text-lg font-bold mb-2">Editeur</h2>
 
-          <VueFlow @nodeClick="handleNodeClick" v-model:nodes="nodes" v-model:edges="edges">
+          <VueFlow @nodeClick="handleNodeClick" v-model:nodes="nodes" v-model:edges="edges" :fit-view-on-init="true"
+            :default-zoom="1" class="vue-flow">
             <Background />
             <Controls />
             <MiniMap />
-            <LogicFormEditNode :onClose="onClose" @update:variables="onVariablesUpdate"
+            <LogicFormEditNode :onClose="onClose" @update:variables="onSubmitVariableOrOperation"
               @update:selectedButton="onSelectedButtonUpdate" @update:conditions="onConditionUpdate"
               @update:returns="onReturnsUpdate" @update:loop="onLoopUpdate" @update:meta="onMetaUpdate"
               :onSubmitVariable="handleVariableSubmit" :onSubmitCondition="handleConditionSubmit"
-              :onSubmitLoop="handleLoopSubmit" :onSubmitReturn="handleReturnSubmit" />
+              :onSubmitLoop="handleLoopSubmit" :onSubmitReturn="handleReturnSubmit" :key="selectedParentId"
+              :conditionType="selectedParentId" />
           </VueFlow>
         </div>
       </div>
@@ -190,6 +213,11 @@ input {
 
 .bloc-editor {
   width: 100%;
+}
+
+.vue-flow__handle-bottom {
+  background-color: black;
+  border-radius: 50%;
 }
 </style>
 

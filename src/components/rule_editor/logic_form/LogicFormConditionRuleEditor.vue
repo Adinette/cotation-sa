@@ -27,5 +27,6 @@ const fields: FieldConfig[] = [
 </script>
 
 <template>
-    <GenericForm :fields="fields" :index="props.index" :closeDialog="props.closeDialog" :onSubmit="handleSubmit" />
+    <GenericForm :fields="fields" :index="props.index" :closeDialog="props.closeDialog"
+        :initialValues="defaultConditions" :onSubmit="handleSubmit" />
 </template>

@@ -18,7 +18,7 @@ watch(
     () => props.defaultOperand,
     (newVal) => {
         if (newVal !== undefined) {
-            initialValues.value.operation = newVal;
+            initialValues.value.name = newVal;
         }
     },
     { immediate: true }
