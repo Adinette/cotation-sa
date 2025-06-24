@@ -82,18 +82,32 @@ export function generateReturnNodes(
         }
 
         if (parentBranchId && inferredEndConditionNodeId && edgesRef) {
-            const lastConnectedNode = edgesRef.value.findLast(e => e.target === inferredEndConditionNodeId)?.source;
-            const dynamicParentId = lastConnectedNode ?? parentBranchId;
-            insertReturnBetween(returnNode, dynamicParentId, inferredEndConditionNodeId, edgesRef);
+            // Correction: Utiliser parentBranchId directement comme point de départ de la branche
+            // au lieu de chercher un 'lastConnectedNode' qui pourrait être sur une autre branche.
+            insertReturnBetween(returnNode, parentBranchId, inferredEndConditionNodeId, edgesRef);
 
             if (loopNodePairs?.length) {
+                // Si on est dans une boucle, la logique updateLoopEdges gère spécifiquement
+                // comment le nœud de retour s'insère par rapport à la boucle.
+                // Cette fonction peut avoir besoin d'être revue pour s'assurer qu'elle
+                // respecte le parentBranchId si celui-ci est à l'intérieur de la boucle.
+                // Pour l'instant, on suppose qu'elle est appelée après insertReturnBetween
+                // et qu'elle ajuste les arêtes de la boucle en conséquence.
                 updateLoopEdges(edgesRef, returnNode, loopNodePairs, inferredEndConditionNodeId);
             }
 
-            edgesRef.value = edgesRef.value.filter(e => !e.source.startsWith('end-cond'));
+            // Cette ligne semble trop agressive. Elle supprime toutes les arêtes sortant des nœuds "end-cond".
+            // Elle devrait être plus ciblée si une suppression est nécessaire.
+            // Commentée pour l'instant, car insertReturnBetween devrait gérer les reconnexions nécessaires.
+            // edgesRef.value = edgesRef.value.filter(e => !e.source.startsWith('end-cond'));
         }
 
-        if (loopNodePairs && edgesRef) {
+        // Cette section semble redondante ou conflictuelle avec la section précédente
+        // si parentBranchId et inferredEndConditionNodeId sont déjà fournis (ce qui est le cas pour l'imbrication).
+        // Elle est plus pertinente si on ajoute un retour dans un contexte de boucle simple sans branche conditionnelle.
+        // Il faudrait clarifier quand chaque section doit s'appliquer.
+        // Pour l'instant, on se concentre sur la correction de l'imbrication via parentBranchId.
+        if (loopNodePairs && edgesRef && !(parentBranchId && inferredEndConditionNodeId)) {
             loopNodePairs.forEach(({ endId }) => {
                 const edgeToEnd = edgesRef.value.find(e =>
                     e.target === endId &&

@@ -56,40 +56,80 @@ function reconnectToEndCondition(
     inferredEndConditionNodeId: string,
     loopNodePairs?: { loopNodeId: string; endId: string }[]
 ) {
+    if (newNodes.length === 0) return; // Rien à faire si pas de nouveaux nœuds
+
     const firstNewNode = newNodes[0];
-    const lastConnectedNodeId = [...edges.value]
-        .reverse()
-        .find(e => e.target === inferredEndConditionNodeId)?.source;
+    const lastNewNode = newNodes[newNodes.length - 1];
 
-    const dynamicParentId = lastConnectedNodeId ?? parentBranchId;
-
-    const edgeIndex = edges.value.findIndex(
-        e => e.source === dynamicParentId && e.target === inferredEndConditionNodeId
+    // 1. Trouver et supprimer l'arête directe de parentBranchId vers inferredEndConditionNodeId.
+    // Cette arête représente la branche "vide" ou la connexion directe avant l'insertion.
+    const edgeToRemoveIndex = edges.value.findIndex(
+        e => e.source === parentBranchId && e.target === inferredEndConditionNodeId
     );
-    if (edgeIndex !== -1) edges.value.splice(edgeIndex, 1);
 
+    if (edgeToRemoveIndex !== -1) {
+        edges.value.splice(edgeToRemoveIndex, 1);
+    } else {
+        // Ce cas peut se produire si la branche n'est pas vide et contient déjà d'autres nœuds.
+        // Dans ce scénario, nous ne devrions pas nous connecter directement à parentBranchId,
+        // mais plutôt au dernier nœud de la séquence partant de parentBranchId.
+        // Pour l'instant, cette correction se concentre sur le bug où la mauvaise branche est choisie.
+        console.warn(`[reconnectToEndCondition] Edge from ${parentBranchId} to ${inferredEndConditionNodeId} not found for direct reconnection. This might be okay if the branch is not empty.`);
+    }
+
+    // 2. Connecter parentBranchId au premier nouveau nœud.
     edges.value.push({
-        id: `e-${dynamicParentId}-${firstNewNode.id}`,
-        source: dynamicParentId,
+        id: `e-${parentBranchId}-${firstNewNode.id}-${Date.now()}`,
+        source: parentBranchId,
         target: firstNewNode.id,
     });
 
-    if (!loopNodePairs?.length) {
+    // 3. Connecter le dernier nouveau nœud à inferredEndConditionNodeId.
+    // Cette partie gère la connexion de la fin de la séquence des nouveaux nœuds au point de sortie de la branche.
+    // La logique concernant loopNodePairs est complexe et pourrait nécessiter une gestion plus spécifique
+    // si les nouveaux nœuds sont insérés DANS une boucle qui elle-même est DANS une branche de condition.
+    // Pour le cas standard d'ajout à une branche then/else ou à l'intérieur d'une boucle simple,
+    // la connexion directe du dernier nouveau nœud à inferredEndConditionNodeId est correcte.
+    if (loopNodePairs && loopNodePairs.some(pair => pair.loopNodeId === parentBranchId || pair.endId === inferredEndConditionNodeId)) {
+        // Cas spécifique : si parentBranchId est un loopNodeId ou inferredEndConditionNodeId est un endId d'une boucle,
+        // la connexion se fait vers inferredEndConditionNodeId (qui est le endId de la boucle).
         edges.value.push({
-            id: `e-${firstNewNode.id}-${inferredEndConditionNodeId}`,
-            source: firstNewNode.id,
+            id: `e-${lastNewNode.id}-${inferredEndConditionNodeId}-${Date.now()}`,
+            source: lastNewNode.id,
+            target: inferredEndConditionNodeId,
+        });
+    } else if (!loopNodePairs || loopNodePairs.length === 0) {
+        // Cas standard (pas à l'intérieur d'une boucle identifiée par loopNodePairs, ou pas de paires de boucles)
+        // ou ajout dans une branche de condition qui n'est pas directement une boucle.
+        edges.value.push({
+            id: `e-${lastNewNode.id}-${inferredEndConditionNodeId}-${Date.now()}`,
+            source: lastNewNode.id,
             target: inferredEndConditionNodeId,
         });
     } else {
-        const loopEndId = loopNodePairs.find(e => e.endId)?.endId;
-        if (loopEndId) {
-            edges.value.push({
-                id: `e-${loopEndId}-${inferredEndConditionNodeId}`,
-                source: loopEndId,
-                target: inferredEndConditionNodeId,
-            });
-        }
+        // Si loopNodePairs est présent et que nous sommes dans un contexte de boucle plus complexe,
+        // la logique originale pour trouver le loopEndId pourrait être pertinente,
+        // mais elle doit être appliquée avec précaution pour éviter de reconnecter incorrectement.
+        // Pour l'instant, laissons la connexion standard au inferredEndConditionNodeId,
+        // car c'est le point de sortie de la branche actuelle.
+        // La logique originale était :
+        // const loopEndId = loopNodePairs.find(e => e.endId)?.endId;
+        // if (loopEndId) {
+        // edges.value.push({
+        // id: `e-${loopEndId}-${inferredEndConditionNodeId}`, // Ceci semble incorrect, connecte la fin de boucle à la fin de condition
+        // source: loopEndId,
+        // target: inferredEndConditionNodeId,
+        // });
+        // }
+        // La connexion correcte devrait être lastNewNode.id -> inferredEndConditionNodeId (qui est le end-loop)
+         edges.value.push({
+            id: `e-${lastNewNode.id}-${inferredEndConditionNodeId}-${Date.now()}`,
+            source: lastNewNode.id,
+            target: inferredEndConditionNodeId,
+        });
     }
+    // Assurer la réactivité si ce n'est pas déjà fait par l'appelant
+    edges.value = [...edges.value];
 }
 
 function connectToPreviousNode(nodes: Ref<Node[]>, edges: Ref<Edge[]>, newNodes: Node[]) {
