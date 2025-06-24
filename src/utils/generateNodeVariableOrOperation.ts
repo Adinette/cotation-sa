@@ -56,31 +56,26 @@ function reconnectToEndCondition(
     inferredEndConditionNodeId: string,
     loopNodePairs?: { loopNodeId: string; endId: string }[]
 ) {
-    if (newNodes.length === 0) return; // Rien à faire si pas de nouveaux nœuds
+    if (newNodes.length === 0) return;
 
     const firstNewNode = newNodes[0];
 
-    // Trouver le dernier nœud connecté à la fin, dont la source commence par var-, op- ou ret-
+    // Trouver le dernier nœud connecté à la fin
     const lastEdgeToEnd = [...edges.value]
         .reverse()
         .find(e =>
             e.target === inferredEndConditionNodeId &&
-            (e.source.startsWith('var-') || e.source.startsWith('op-') || e.source.startsWith('ret-'))
+            (e.source.startsWith('var-') || e.source.startsWith('op-') || e.source.startsWith('ret-') || e.source.startsWith('loop') || e.source.startsWith('cond'))
         );
+    console.log(lastEdgeToEnd);
 
     const dynamicParentId = lastEdgeToEnd?.source ?? parentBranchId;
-
+    console.log(dynamicParentId);
     edges.value = edges.value.filter(
-        e => !(
-            e.target === inferredEndConditionNodeId &&
-            (e.source.startsWith('var-') || e.source.startsWith('op-') || e.source.startsWith('ret-'))
-        )
+        e => !(e.target === inferredEndConditionNodeId && e.source === dynamicParentId)
     );
 
-    // Supprimer l'arête directe parent → endCondition si elle existe
-    edges.value = edges.value.filter(
-        e => !(e.source === parentBranchId && e.target === inferredEndConditionNodeId)
-    );
+
 
     // Connecter dynamicParentId → premier nouveau nœud
     edges.value.push({
@@ -100,36 +95,16 @@ function reconnectToEndCondition(
 
     const lastNewNode = newNodes[newNodes.length - 1];
 
-    // Connecter le dernier nouveau nœud à la fin de condition
-    edges.value.push({
-        id: `e-${lastNewNode.id}-${inferredEndConditionNodeId}-${Date.now()}`,
-        source: lastNewNode.id,
-        target: inferredEndConditionNodeId,
-    });
-
-
-    if (loopNodePairs && loopNodePairs.some(pair => pair.loopNodeId === parentBranchId || pair.endId === inferredEndConditionNodeId)) {
-
+    // Éviter les boucles : ne pas connecter un nœud à lui-même
+    if (lastNewNode.id !== inferredEndConditionNodeId) {
         edges.value.push({
-            id: `e-${lastNewNode}-${inferredEndConditionNodeId}-${Date.now()}`,
-            source: lastNewNode?.id!,
-            target: inferredEndConditionNodeId,
-        });
-    } else if (!loopNodePairs || loopNodePairs.length === 0) {
-        edges.value.push({
-            id: `e-${lastNewNode}-${inferredEndConditionNodeId}-${Date.now()}`,
-            source: lastNewNode?.id!,
-            target: inferredEndConditionNodeId,
-        });
-    } else {
-
-        edges.value.push({
-            id: `e-${lastNewNode}-${inferredEndConditionNodeId}-${Date.now()}`,
-            source: lastNewNode?.id!,
+            id: `e-${lastNewNode.id}-${inferredEndConditionNodeId}-${Date.now()}`,
+            source: lastNewNode.id,
             target: inferredEndConditionNodeId,
         });
     }
-    // Assurer la réactivité si ce n'est pas déjà fait par l'appelant
+
+    // Assurer la réactivité
     edges.value = [...edges.value];
 }
 
