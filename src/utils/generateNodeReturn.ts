@@ -70,65 +70,142 @@ export function generateReturnNodes(
         existingNodes.push(returnNode);
         allNodes.push(returnNode);
 
-        const lastEdge = edgesRef?.value.at(-1);
-        const lastTarget = lastEdge?.target;
+        existingNodes.push(returnNode);
+        allNodes.push(returnNode);
 
-        if (lastTarget) {
-            edgesRef?.value.push({
-                id: `e-${lastTarget}-${returnNode.id}`,
-                source: lastTarget,
-                target: returnNode.id,
-            });
-        }
+        // La logique précédente pour 'lastTarget' connectait le retour au dernier nœud ajouté globalement.
+        // Ceci est remplacé par une logique de branche plus spécifique ci-dessous.
+        // const lastEdge = edgesRef?.value.at(-1);
+        // const lastTarget = lastEdge?.target;
+        // if (lastTarget) {
+        //     edgesRef?.value.push({
+        //         id: `e-${lastTarget}-${returnNode.id}`,
+        //         source: lastTarget,
+        //         target: returnNode.id,
+        //     });
+        // }
 
         if (parentBranchId && inferredEndConditionNodeId && edgesRef) {
-            // Correction: Utiliser parentBranchId directement comme point de départ de la branche
-            // au lieu de chercher un 'lastConnectedNode' qui pourrait être sur une autre branche.
-            insertReturnBetween(returnNode, parentBranchId, inferredEndConditionNodeId, edgesRef);
+            // Logique d'insertion dans une branche (similaire à onVariablesUpdate)
+            let insertionPredecessorId = parentBranchId;
+            const directEdgeIndex = edgesRef.value.findIndex(
+                e => e.source === parentBranchId && e.target === inferredEndConditionNodeId
+            );
 
-            if (loopNodePairs?.length) {
-                // Si on est dans une boucle, la logique updateLoopEdges gère spécifiquement
-                // comment le nœud de retour s'insère par rapport à la boucle.
-                // Cette fonction peut avoir besoin d'être revue pour s'assurer qu'elle
-                // respecte le parentBranchId si celui-ci est à l'intérieur de la boucle.
-                // Pour l'instant, on suppose qu'elle est appelée après insertReturnBetween
-                // et qu'elle ajuste les arêtes de la boucle en conséquence.
-                updateLoopEdges(edgesRef, returnNode, loopNodePairs, inferredEndConditionNodeId);
+            if (directEdgeIndex !== -1) { // Branche vide
+                edgesRef.value.splice(directEdgeIndex, 1);
+            } else { // Branche non vide, trouver le prédécesseur
+                let traverser = parentBranchId;
+                const visited = new Set<string>();
+                let foundInBranch = false;
+                for (let i = 0; i < edgesRef.value.length + 5; i++) { // Safety break
+                    if (visited.has(traverser)) {
+                        insertionPredecessorId = traverser;
+                        foundInBranch = true;
+                        console.warn(`[generateReturnNodes] Cycle detected from ${parentBranchId}. Using ${traverser}.`);
+                        break;
+                    }
+                    visited.add(traverser);
+                    // Cherche une arête sortante qui n'est pas un retour direct au parentBranchId (pour éviter des boucles simples immédiates)
+                    const outgoingEdge = edgesRef.value.find(e => e.source === traverser && e.target !== parentBranchId);
+                    if (outgoingEdge) {
+                        if (outgoingEdge.target === inferredEndConditionNodeId) {
+                            insertionPredecessorId = traverser; // 'traverser' est le nœud juste avant la fin de la branche
+                            foundInBranch = true;
+                            break;
+                        }
+                        traverser = outgoingEdge.target; // Continuer la traversée
+                    } else {
+                        // Pas d'arête sortante, 'traverser' est le dernier nœud de ce chemin
+                        insertionPredecessorId = traverser;
+                        foundInBranch = true;
+                        break;
+                    }
+                }
+                 if (!foundInBranch) {
+                     console.warn(`[generateReturnNodes] Could not find predecessor for ${inferredEndConditionNodeId} from ${parentBranchId}. Using ${insertionPredecessorId}.`);
+                 }
+                // Supprimer l'arête du prédécesseur déterminé vers la fin de la branche
+                const predEdgeIdx = edgesRef.value.findIndex(e => e.source === insertionPredecessorId && e.target === inferredEndConditionNodeId);
+                if (predEdgeIdx !== -1) {
+                    edgesRef.value.splice(predEdgeIdx, 1);
+                } else {
+                    console.warn(`[generateReturnNodes] No edge from ${insertionPredecessorId} to ${inferredEndConditionNodeId} to remove.`);
+                 }
             }
 
-            // Cette ligne semble trop agressive. Elle supprime toutes les arêtes sortant des nœuds "end-cond".
-            // Elle devrait être plus ciblée si une suppression est nécessaire.
-            // Commentée pour l'instant, car insertReturnBetween devrait gérer les reconnexions nécessaires.
-            // edgesRef.value = edgesRef.value.filter(e => !e.source.startsWith('end-cond'));
-        }
-
-        // Cette section semble redondante ou conflictuelle avec la section précédente
-        // si parentBranchId et inferredEndConditionNodeId sont déjà fournis (ce qui est le cas pour l'imbrication).
-        // Elle est plus pertinente si on ajoute un retour dans un contexte de boucle simple sans branche conditionnelle.
-        // Il faudrait clarifier quand chaque section doit s'appliquer.
-        // Pour l'instant, on se concentre sur la correction de l'imbrication via parentBranchId.
-        if (loopNodePairs && edgesRef && !(parentBranchId && inferredEndConditionNodeId)) {
-            loopNodePairs.forEach(({ endId }) => {
-                const edgeToEnd = edgesRef.value.find(e =>
-                    e.target === endId &&
-                    (e.source.startsWith('var-') || e.source.startsWith('op-') || e.source.startsWith('loop-'))
-                );
-                const previousNodeId = edgeToEnd?.source;
-
-                if (previousNodeId) {
-                    const edgeIndex = edgesRef.value.findIndex(e => e.source === previousNodeId && e.target === endId);
-                    if (edgeIndex !== -1) edgesRef.value.splice(edgeIndex, 1);
-
-                    edgesRef.value.push(
-                        { id: `e-${previousNodeId}-${returnNode.id}`, source: previousNodeId, target: returnNode.id },
-                        { id: `e-${returnNode.id}-${endId}`, source: returnNode.id, target: endId }
-                    );
-                }
+            // Connecter le prédécesseur au nouveau nœud de retour
+            edgesRef.value.push({
+                id: `e-${insertionPredecessorId}-${returnNode.id}-${Date.now()}`,
+                source: insertionPredecessorId,
+                target: returnNode.id,
             });
+            // Connecter le nouveau nœud de retour à la fin de la branche
+            edgesRef.value.push({
+                id: `e-${returnNode.id}-${inferredEndConditionNodeId}-${Date.now()}`,
+                source: returnNode.id,
+                target: inferredEndConditionNodeId,
+            });
+
+            // La fonction insertReturnBetween n'est plus nécessaire si cette logique est utilisée.
+            // insertReturnBetween(returnNode, parentBranchId, inferredEndConditionNodeId, edgesRef);
+
+            if (loopNodePairs?.length) {
+                 // La logique updateLoopEdges peut avoir besoin d'être revue pour s'assurer qu'elle
+                 // ne crée pas de conflits avec le chaînage déjà établi.
+                updateLoopEdges(edgesRef, returnNode, loopNodePairs, inferredEndConditionNodeId);
+            }
+        } else if (loopNodePairs && edgesRef) {
+            // Cas où on ajoute un retour directement dans une boucle (pas une sous-branche de condition)
+            loopNodePairs.forEach(({ loopNodeId, endId }) => {
+                let loopInsertionPredecessor = loopNodeId;
+                const directLoopEdge = edgesRef.value.findIndex(e => e.source === loopNodeId && e.target === endId);
+                if (directLoopEdge !== -1) {
+                    edgesRef.value.splice(directLoopEdge, 1);
+                } else {
+                    let traverser = loopNodeId;
+                    const visited = new Set<string>();
+                    for(let i=0; i < edgesRef.value.length + 5; ++i) { // Safety break
+                        if(visited.has(traverser)) { loopInsertionPredecessor = traverser; break; }
+                        visited.add(traverser);
+                        const out = edgesRef.value.find(e => e.source === traverser && e.target !== loopNodeId);
+                        if(out) {
+                            if(out.target === endId) { loopInsertionPredecessor = traverser; break; }
+                            traverser = out.target;
+                        } else {
+                            loopInsertionPredecessor = traverser; break;
+                        }
+                    }
+                    const predEdgeToLoopEnd = edgesRef.value.findIndex(e => e.source === loopInsertionPredecessor && e.target === endId);
+                    if(predEdgeToLoopEnd !== -1) {
+                        edgesRef.value.splice(predEdgeToLoopEnd, 1);
+                    } else {
+                         console.warn(`[generateReturnNodes-loop] No edge from ${loopInsertionPredecessor} to ${endId} to remove.`);
+                    }
+                }
+                edgesRef.value.push({ id: `e-${loopInsertionPredecessor}-${returnNode.id}-${Date.now()}`, source: loopInsertionPredecessor, target: returnNode.id });
+                edgesRef.value.push({ id: `e-${returnNode.id}-${endId}-${Date.now()}`, source: returnNode.id, target: endId });
+            });
+        } else if (edgesRef) {
+            // Fallback: ajout simple à la fin du dernier nœud global si aucun contexte de branche/boucle
+            // existingNodes a déjà returnNode, donc on cherche l'avant-dernier ou le dernier dans edgesRef
+            const lastOverallNodeId = edgesRef.value.length > 0 ?
+                                      edgesRef.value.map(e => [e.source, e.target]).flat().filter(id => id !== returnNode.id).pop() :
+                                      (existingNodes.length > 1 ? existingNodes[existingNodes.length - 2].id : null) ;
+            if(lastOverallNodeId) {
+                 edgesRef.value.push({
+                    id: `e-${lastOverallNodeId}-${returnNode.id}-${Date.now()}`,
+                    source: lastOverallNodeId,
+                    target: returnNode.id,
+                });
+            } else {
+                console.warn(`[generateReturnNodes] No last node found to connect return node ${returnNode.id}`);
+            }
         }
     });
 
-    return { nodes: allNodes, edges: allEdges };
+    if(edgesRef) edgesRef.value = [...edgesRef.value]; // Assurer la réactivité
+    return { nodes: allNodes, edges: allEdges }; // allEdges est toujours vide, les modifs sont sur edgesRef
 }
 
 
