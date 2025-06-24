@@ -56,41 +56,83 @@ function reconnectToEndCondition(
     inferredEndConditionNodeId: string,
     loopNodePairs?: { loopNodeId: string; endId: string }[]
 ) {
+    if (newNodes.length === 0) return; // Rien à faire si pas de nouveaux nœuds
+
     const firstNewNode = newNodes[0];
-    const lastConnectedNodeId = [...edges.value]
+
+    // Trouver le dernier nœud connecté à la fin, dont la source commence par var-, op- ou ret-
+    const lastEdgeToEnd = [...edges.value]
         .reverse()
-        .find(e => e.target === inferredEndConditionNodeId)?.source;
+        .find(e =>
+            e.target === inferredEndConditionNodeId &&
+            (e.source.startsWith('var-') || e.source.startsWith('op-') || e.source.startsWith('ret-'))
+        );
 
-    const dynamicParentId = lastConnectedNodeId ?? parentBranchId;
+    const dynamicParentId = lastEdgeToEnd?.source ?? parentBranchId;
 
-    const edgeIndex = edges.value.findIndex(
-        e => e.source === dynamicParentId && e.target === inferredEndConditionNodeId
+    edges.value = edges.value.filter(
+        e => !(
+            e.target === inferredEndConditionNodeId &&
+            (e.source.startsWith('var-') || e.source.startsWith('op-') || e.source.startsWith('ret-'))
+        )
     );
-    if (edgeIndex !== -1) edges.value.splice(edgeIndex, 1);
 
+    // Supprimer l'arête directe parent → endCondition si elle existe
+    edges.value = edges.value.filter(
+        e => !(e.source === parentBranchId && e.target === inferredEndConditionNodeId)
+    );
+
+    // Connecter dynamicParentId → premier nouveau nœud
     edges.value.push({
-        id: `e-${dynamicParentId}-${firstNewNode.id}`,
+        id: `e-${dynamicParentId}-${firstNewNode.id}-${Date.now()}`,
         source: dynamicParentId,
         target: firstNewNode.id,
     });
 
-    if (!loopNodePairs?.length) {
+    // Connecter les nouveaux nœuds entre eux
+    for (let i = 0; i < newNodes.length - 1; i++) {
         edges.value.push({
-            id: `e-${firstNewNode.id}-${inferredEndConditionNodeId}`,
-            source: firstNewNode.id,
+            id: `e-${newNodes[i].id}-${newNodes[i + 1].id}-${Date.now()}`,
+            source: newNodes[i].id,
+            target: newNodes[i + 1].id,
+        });
+    }
+
+    const lastNewNode = newNodes[newNodes.length - 1];
+
+    // Connecter le dernier nouveau nœud à la fin de condition
+    edges.value.push({
+        id: `e-${lastNewNode.id}-${inferredEndConditionNodeId}-${Date.now()}`,
+        source: lastNewNode.id,
+        target: inferredEndConditionNodeId,
+    });
+
+
+    if (loopNodePairs && loopNodePairs.some(pair => pair.loopNodeId === parentBranchId || pair.endId === inferredEndConditionNodeId)) {
+
+        edges.value.push({
+            id: `e-${lastNewNode}-${inferredEndConditionNodeId}-${Date.now()}`,
+            source: lastNewNode?.id!,
+            target: inferredEndConditionNodeId,
+        });
+    } else if (!loopNodePairs || loopNodePairs.length === 0) {
+        edges.value.push({
+            id: `e-${lastNewNode}-${inferredEndConditionNodeId}-${Date.now()}`,
+            source: lastNewNode?.id!,
             target: inferredEndConditionNodeId,
         });
     } else {
-        const loopEndId = loopNodePairs.find(e => e.endId)?.endId;
-        if (loopEndId) {
-            edges.value.push({
-                id: `e-${loopEndId}-${inferredEndConditionNodeId}`,
-                source: loopEndId,
-                target: inferredEndConditionNodeId,
-            });
-        }
+
+        edges.value.push({
+            id: `e-${lastNewNode}-${inferredEndConditionNodeId}-${Date.now()}`,
+            source: lastNewNode?.id!,
+            target: inferredEndConditionNodeId,
+        });
     }
+    // Assurer la réactivité si ce n'est pas déjà fait par l'appelant
+    edges.value = [...edges.value];
 }
+
 
 function connectToPreviousNode(nodes: Ref<Node[]>, edges: Ref<Edge[]>, newNodes: Node[]) {
     const previousNode = nodes.value[nodes.value.length - newNodes.length - 1];
@@ -252,8 +294,7 @@ export function onVariablesUpdate(
     const newNodes = generateVariableNodes(newUniqueVars, startIndex);
     nodes.value.push(...newNodes);
 
-    const firstNewNode = newNodes[0];
-    const lastNewNode = newNodes[newNodes.length - 1];
+    connectNewNodesSequentially(edges, newNodes);
 
     if (loopNodePairs?.length) {
         loopNodePairs.forEach(({ loopNodeId, endId }) => {
@@ -267,7 +308,6 @@ export function onVariablesUpdate(
         connectToPreviousNode(nodes, edges, newNodes);
     }
 
-    connectNewNodesSequentially(edges, newNodes);
 
     // Nettoyage des arêtes inutiles
     edges.value = edges.value.filter(e => !e.source.startsWith('end-loop'));
