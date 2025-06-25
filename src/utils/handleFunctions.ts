@@ -65,10 +65,9 @@ export function handleLoopSubmit(data: LoopEntry, onSubmitLoop?: (data: LoopEntr
 function inferEndNodeIdFromBranch(branchId: string): string {
     return branchId.replace(/^then-cond|^else-cond/, 'end-cond');
 }
-
-export function handleConditionClick(nodeId: string, id: string, label = 'Then') {
+export function handleConditionClick(nodeId: string, label: 'Then' | 'Else') {
     selectedParentId.value = nodeId;
-    console.log(nodeId, "value button ")
+    console.log(`Nœud cliqué : ${label} (${nodeId})`);
     const inferredEndConditionNodeId = inferEndNodeIdFromBranch(nodeId);
     window.dispatchEvent(
         new CustomEvent('open-variable-editor', {
@@ -81,5 +80,6 @@ export function handleConditionClick(nodeId: string, id: string, label = 'Then')
         })
     );
 }
+
 
 

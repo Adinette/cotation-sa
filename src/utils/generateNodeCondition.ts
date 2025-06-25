@@ -8,6 +8,7 @@ function insertConditionBetween(
     parentBranchId: string,
     inferredEndConditionNodeId: string,
     edges: Ref<Edge[]>,
+    loopNodePairs?: { loopNodeId: string; endId: string }[],
 ) {
     // Supprimer l’arête directe parent → end
     const edgeIndex = edges.value.findIndex(
@@ -52,7 +53,16 @@ function createConditionNode(condition: ConditionEntry, id: string, x: number, y
     }).node;
 }
 
-function createBranchNodes(conditionId: string, x: number, y: number) {
+const selectedBranchNodeId = ref<string | null>(null);
+
+function handleClick(clickedId: string, type: 'Then' | 'Else') {
+    selectedBranchNodeId.value = clickedId;
+
+    console.log(`Nœud cliqué : ${type} (${clickedId})`);
+}
+
+
+function createBranchNodes(conditionId: string, x: number, y: number, branchNode?: string) {
     const offsetY = 150;
 
     const thenNode = new ThenNode(`then-${conditionId}`, { x: x - 150, y: y + offsetY }).node;
@@ -69,10 +79,8 @@ function createBranchNodes(conditionId: string, x: number, y: number) {
         label: elseNode.data?.label ?? 'Sinon (Else)',
         onClick: () => handleConditionClick(elseNode.id, 'Else')
     };
-
     return { thenNode, elseNode, endNode };
 }
-
 
 function createBranchEdges(conditionId: string, thenNode: Node, elseNode: Node, endNode: Node): Edge[] {
     return [
@@ -81,15 +89,6 @@ function createBranchEdges(conditionId: string, thenNode: Node, elseNode: Node, 
         { id: `e-${thenNode.id}-${endNode.id}`, source: thenNode.id, target: endNode.id },
         { id: `e-${elseNode.id}-${endNode.id}`, source: elseNode.id, target: endNode.id }
     ];
-}
-
-function updateLoopEdges(edgesRef: Ref<Edge[]>, loopNodeId: string, endId: string, conditionId: string, endNodeId: string) {
-    const index = edgesRef.value.findIndex(e => e.source === loopNodeId && e.target === endId);
-    if (index !== -1) edgesRef.value.splice(index, 1);
-    edgesRef.value.push(
-        { id: `e-${loopNodeId}-${conditionId}`, source: loopNodeId, target: conditionId },
-        { id: `e-${endNodeId}-${endId}`, source: endNodeId, target: endId }
-    );
 }
 
 function createContinueNode(conditionId: string, x: number, y: number): Node {
@@ -112,6 +111,7 @@ export function generateConditionNodes(
     inferredEndConditionNodeId?: string,
     edgesRef?: Ref<Edge[]>,
     loopNodePairs?: { loopNodeId: string; endId: string }[],
+    brancheNode?: string
 ): { nodes: Node[]; edges: Edge[] } {
     const allNodes: Node[] = [];
     const allEdges: Edge[] = [];
@@ -124,7 +124,8 @@ export function generateConditionNodes(
         const { baseX, baseY } = getBasePosition(parentNode);
 
         const conditionNode = createConditionNode(condition, conditionId, baseX, baseY);
-        const { thenNode, elseNode, endNode } = createBranchNodes(conditionId, baseX, baseY);
+        const { thenNode, elseNode, endNode } = createBranchNodes(conditionId, baseX, baseY, brancheNode);
+        console.log(brancheNode, 'branchNode');
 
         allNodes.push(conditionNode, thenNode, elseNode, endNode);
         existingNodes.push(conditionNode, thenNode, elseNode, endNode);
@@ -132,8 +133,21 @@ export function generateConditionNodes(
         allEdges.push(...createBranchEdges(conditionId, thenNode, elseNode, endNode));
 
         if (loopNodePairs && edgesRef) {
+            console.log("ok");
+
             loopNodePairs.forEach(({ loopNodeId, endId }) => {
-                updateLoopEdges(edgesRef, loopNodeId, endId, conditionNode.id, endNode.id);
+                console.log(loopNodeId, endId, "loopNodePairs");
+                console.log("oui");
+
+
+                const newEdges = edgesRef.value.filter(e => !(e.source === loopNodeId && e.target === endId));
+                newEdges.push(
+                    { id: `e-${loopNodeId}-${conditionId}`, source: loopNodeId!, target: conditionId! },
+                    { id: `e-${endNode.id}-${endId}`, source: endNode.id!, target: endId! }
+                );
+                edgesRef.value = newEdges; // force la réactivité
+
+                console.log("Arêtes temporaires :", edgesRef.value);
 
                 if (selectedButton.value?.type === 'continue') {
                     const continueNode = createContinueNode(conditionId, baseX, baseY);
@@ -163,14 +177,15 @@ export function generateConditionNodes(
                     );
                 }
             });
-        }
 
+        }
         if (inferredEndConditionNodeId && edgesRef) {
+
             const lastConnectedNode = edgesRef.value.findLast(
                 e => e.target === inferredEndConditionNodeId
             )?.source;
             const dynamicParentId = lastConnectedNode ?? parentBranchId;
-            insertConditionBetween(conditionNode, endNode.id, dynamicParentId!, inferredEndConditionNodeId, edgesRef);
+            insertConditionBetween(conditionNode, endNode.id, dynamicParentId!, inferredEndConditionNodeId, edgesRef, loopNodePairs);
         }
     });
 

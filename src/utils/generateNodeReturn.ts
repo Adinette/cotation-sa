@@ -6,7 +6,8 @@ function insertReturnBetween(
     newReturnNode: Node,
     parentBranchId: string,
     inferredEndConditionNodeId: string,
-    edges: Ref<Edge[]>
+    edges: Ref<Edge[]>,
+
 ) {
     const edgeIndex = edges.value.findIndex(
         e => e.source === parentBranchId && e.target === inferredEndConditionNodeId
@@ -17,6 +18,17 @@ function insertReturnBetween(
         { id: `e-${parentBranchId}-${newReturnNode.id}`, source: parentBranchId, target: newReturnNode.id },
         { id: `e-${newReturnNode.id}-${inferredEndConditionNodeId}`, source: newReturnNode.id, target: inferredEndConditionNodeId }
     );
+    const returnIdNode = edges.value.find(e => e.source.startsWith('ret-') && e.target.startsWith('end-cond'))
+    const op = edges.value.find(e => (e.source.startsWith('op-') || e.source.startsWith('var-')) && e.target.startsWith('ret'))
+
+    if (op && returnIdNode) {
+        edges.value = edges.value.filter(e => !e.source.startsWith('end-cond'));
+    }
+    if (returnIdNode) {
+        edges.value.push(
+            { id: `e-${parentBranchId}-${newReturnNode.id}`, source: parentBranchId, target: newReturnNode.id },
+        )
+    }
 }
 
 function createReturnNode(entry: ReturnEntry, index: number): Node {
@@ -87,7 +99,6 @@ export function generateReturnNodes(
             if (loopNodePairs?.length) {
                 updateLoopEdges(edgesRef, returnNode, loopNodePairs, inferredEndConditionNodeId);
             }
-            edgesRef.value = edgesRef.value.filter(e => !e.source.startsWith('end-cond'));
         }
         if (loopNodePairs && edgesRef && !(parentBranchId && inferredEndConditionNodeId)) {
             loopNodePairs.forEach(({ endId }) => {

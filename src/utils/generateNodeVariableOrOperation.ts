@@ -20,7 +20,9 @@ function generateVariableNodes(variables: VariableEntry[], startIndex = 0): Node
     })
 }
 
-function reconnectLoopEdges(edges: Ref<Edge[]>, newNodes: Node[], loopNodeId: string, endId: string) {
+function reconnectLoopEdges(edges: Ref<Edge[]>, newNodes: Node[], loopNodeId: string, endId: string, loopNodePairs?: { loopNodeId: string; endId: string }[],
+
+) {
     const firstNewNode = newNodes[0];
     const lastNewNode = newNodes[newNodes.length - 1];
 
@@ -30,9 +32,9 @@ function reconnectLoopEdges(edges: Ref<Edge[]>, newNodes: Node[], loopNodeId: st
     const previousNodeId = edgeToEnd?.source;
 
     if (previousNodeId) {
+
         const edgeIndex = edges.value.findIndex(e => e.source === previousNodeId && e.target === endId);
         if (edgeIndex !== -1) edges.value.splice(edgeIndex, 1);
-
         if (!previousNodeId.startsWith('end-loop')) {
             edges.value.push({
                 id: `e-${previousNodeId}-${firstNewNode.id}`,
@@ -41,12 +43,26 @@ function reconnectLoopEdges(edges: Ref<Edge[]>, newNodes: Node[], loopNodeId: st
             });
         }
     }
+    if (!loopNodePairs) {
+        edges.value.push({
+            id: `e-${lastNewNode.id}-${endId}`,
+            source: lastNewNode.id,
+            target: endId,
+        });
+    }
+}
+function findLastEdgeToTarget(
 
-    edges.value.push({
-        id: `e-${lastNewNode.id}-${endId}`,
-        source: lastNewNode.id,
-        target: endId,
-    });
+    edges: Edge[],
+    targetId: string,
+    validSourcePrefixes: string[]
+) {
+    return [...edges]
+        .reverse()
+        .find(e =>
+            e.target === targetId &&
+            validSourcePrefixes.some(prefix => e.source.startsWith(prefix))
+        );
 }
 
 function reconnectToEndCondition(
@@ -60,29 +76,95 @@ function reconnectToEndCondition(
 
     const firstNewNode = newNodes[0];
 
-    // Trouver le dernier nœud connecté à la fin
-    const lastEdgeToEnd = [...edges.value]
-        .reverse()
-        .find(e =>
-            e.target === inferredEndConditionNodeId &&
-            (e.source.startsWith('var-') || e.source.startsWith('op-') || e.source.startsWith('ret-') || e.source.startsWith('loop') || e.source.startsWith('cond'))
+    // Chercher si un nœud de boucle ou condition a été ajouté juste avant
+    let dynamicParentId = parentBranchId;
+
+    if (loopNodePairs && loopNodePairs.length > 0) {
+        // Étape 1 : Trouver la fin de boucle/condition connectée à la fin principale
+        const lastLoopOrCond = loopNodePairs.find(pair =>
+            edges.value.some(e =>
+                e.source === pair.endId && e.target === inferredEndConditionNodeId
+            )
         );
-    console.log(lastEdgeToEnd);
-
-    const dynamicParentId = lastEdgeToEnd?.source ?? parentBranchId;
-    console.log(dynamicParentId);
-    edges.value = edges.value.filter(
-        e => !(e.target === inferredEndConditionNodeId && e.source === dynamicParentId)
-    );
-
+        console.log("trouvé");
+        // Étape 3 : Supprimer les arêtes parasites (loop → variable)
+        edges.value = edges.value.filter(
+            e => !(e.source.startsWith('loop') && e.target === firstNewNode.id)
+        );
+        edges.value = edges.value.filter(e => !e.source.startsWith('end-loop') || !e.target.startsWith('end-cond'));
 
 
-    // Connecter dynamicParentId → premier nouveau nœud
-    edges.value.push({
-        id: `e-${dynamicParentId}-${firstNewNode.id}-${Date.now()}`,
-        source: dynamicParentId,
-        target: firstNewNode.id,
-    });
+        if (lastLoopOrCond) {
+            const dynamicParentId = lastLoopOrCond.endId;
+            const lastNewNode = newNodes[newNodes.length - 1];
+
+            console.log(dynamicParentId, "dynamic");
+            console.log(inferredEndConditionNodeId, "inferredEndConditionNodeId");
+            console.log(firstNewNode, "firstNewVariableNode");
+
+            // Étape 4 : Connecter fin de boucle/condition → variable
+            const alreadyExists = edges.value.some(e =>
+                e.source === lastLoopOrCond.loopNodeId && e.target === lastLoopOrCond.endId
+            );
+
+            if (!alreadyExists) {
+                edges.value.push({
+                    id: `e-${lastLoopOrCond.loopNodeId}-${lastLoopOrCond.endId}-${Date.now()}`,
+                    source: lastLoopOrCond.loopNodeId,
+                    target: lastLoopOrCond.endId,
+                });
+            }
+
+            edges.value.push({
+                id: `e-${dynamicParentId}-${firstNewNode.id}-${Date.now()}`,
+                source: dynamicParentId,
+                target: firstNewNode.id,
+            });
+
+            // Étape 5 : Connecter variable → fin principale (si ce n’est pas une fin de boucle)
+
+            edges.value.push({
+                id: `e-${firstNewNode.id}-${inferredEndConditionNodeId}-${Date.now()}`,
+                source: firstNewNode.id,
+                target: inferredEndConditionNodeId,
+            });
+
+            console.log(edges.value);
+        }
+    }
+    else {
+        const validPrefixes = ['var-', 'op-', 'ret-', 'loop', 'end-cond'];
+        const lastEdgeToEnd = findLastEdgeToTarget(edges.value, inferredEndConditionNodeId, validPrefixes);
+        console.log(lastEdgeToEnd?.source)
+        console.log(parentBranchId);
+
+        dynamicParentId = lastEdgeToEnd?.source ?? parentBranchId;
+
+        // Supprimer l'ancienne connexion
+        edges.value = edges.value.filter(
+            e => !(e.target === inferredEndConditionNodeId && e.source === dynamicParentId)
+        );
+        console.log(dynamicParentId, "dynamic");
+
+        // Connecter dynamicParentId → premier nouveau nœud
+        edges.value.push({
+            id: `e-${dynamicParentId}-${firstNewNode.id}-${Date.now()}`,
+            source: dynamicParentId,
+            target: firstNewNode.id,
+        });
+        console.log(edges.value);
+
+        const lastNewNode = newNodes[newNodes.length - 1];
+
+        // Éviter les boucles : ne pas connecter un nœud à lui-même
+        if (lastNewNode.id !== inferredEndConditionNodeId) {
+            edges.value.push({
+                id: `e-${lastNewNode.id}-${inferredEndConditionNodeId}-${Date.now()}`,
+                source: lastNewNode.id,
+                target: inferredEndConditionNodeId,
+            });
+        }
+    }
 
     // Connecter les nouveaux nœuds entre eux
     for (let i = 0; i < newNodes.length - 1; i++) {
@@ -92,18 +174,6 @@ function reconnectToEndCondition(
             target: newNodes[i + 1].id,
         });
     }
-
-    const lastNewNode = newNodes[newNodes.length - 1];
-
-    // Éviter les boucles : ne pas connecter un nœud à lui-même
-    if (lastNewNode.id !== inferredEndConditionNodeId) {
-        edges.value.push({
-            id: `e-${lastNewNode.id}-${inferredEndConditionNodeId}-${Date.now()}`,
-            source: lastNewNode.id,
-            target: inferredEndConditionNodeId,
-        });
-    }
-
     // Assurer la réactivité
     edges.value = [...edges.value];
 }
@@ -279,13 +349,13 @@ export function onVariablesUpdate(
 
     if (parentBranchId && inferredEndConditionNodeId) {
         reconnectToEndCondition(edges, newNodes, parentBranchId, inferredEndConditionNodeId, loopNodePairs);
+        // edges.value = edges.value.filter(e => !e.source.startsWith('end-loop'));
     } else if (nodes.value.length > 1 && !parentBranchId && !inferredEndConditionNodeId) {
         connectToPreviousNode(nodes, edges, newNodes);
     }
 
 
     // Nettoyage des arêtes inutiles
-    edges.value = edges.value.filter(e => !e.source.startsWith('end-loop'));
 
     return newNodes;
 }

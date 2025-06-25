@@ -87,7 +87,6 @@ async function onConditionUpdate(newConditions: ConditionEntry[]) {
     selectedNextNodeId.value ?? undefined,
     edges,
     currentLoopNodePairs.value,
-
   )
   nodes.value.push(...newNodes);
   nodes.value = [...nodes.value];
